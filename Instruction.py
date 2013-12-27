@@ -24,16 +24,29 @@ class Instruction:
 
     self.args = " ".join(self.args);
 
-    print ("instName     = '%s'" % self.instName);
-    print ("instSuffix   = %s" % self.instSuffix);
-    print ("instArguments= %s" % self.instArguments);
-    print ("nativeInst   = '%s'" % self.inst);
-    print ("nativeArgs   = '%s'" % self.args);
-    print ("")
+    if 0:
+      print ("instName     = '%s'" % self.instName);
+      print ("instSuffix   = %s" % self.instSuffix);
+      print ("instArguments= %s" % self.instArguments);
+      print ("nativeInst   = '%s'" % self.inst);
+      print ("nativeArgs   = '%s'" % self.args);
+      print ("")
+
+    self.instList = [
+        "inst_if",
+        "inst_bra"
+        ]
+
+    self.instGen = "inst_gen"
+
 
   def toC(self):
-    cinst = globals()[self.instName](self.instSuffix, self.instArguments, self.inst, self.args);
-    return cinst;
+    inst = self.instName.replace("inst_","");
+    if self.instName in self.instList:
+      return globals()[self.instName](inst, self.instSuffix, self.instArguments, self.inst, self.args);
+    else:
+      return globals()[self.instGen](inst, self.instSuffix, self.instArguments, self.inst, self.args);
+
 
   def nativeInst(self):
     return self.inst;
