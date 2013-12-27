@@ -7,4 +7,6 @@ from Instruction import *
 
 class Scope:
 
+  def __init__(self):
+
 
