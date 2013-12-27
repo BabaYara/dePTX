@@ -3,6 +3,11 @@
 *.lo
 *.o
 
+__pycache__
+
+#PTXSource
+*.ptx
+
 # Compiled Dynamic libraries
 *.so
 *.dylib
@@ -11,3 +16,6 @@
 *.lai
 *.la
 *.a
+*.swp
+*~
+

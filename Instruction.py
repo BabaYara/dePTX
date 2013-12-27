@@ -3,13 +3,15 @@
 # Evghenii Gaburov, 2013
 
 import sys;
-import Decompile as decompile
+from Decompile import *
 
 class Instruction:
 
   def __init__(self,inst_line):
-    inst =          inst_line.split()[0]  .replace('.',' ').replace('%',' ').split()
-    args = ' '.join(inst_line.split()[1:]).replace('.','_').replace(',',' ').replace('%','').replace(';','').split();
+    self.inst = inst_line.split()[0];
+    self.args = inst_line.split()[1:];
+    inst =          self.inst.replace('.',' ').replace('%',' ').split()
+    args = ' '.join(self.args).replace('.','_').replace(',',' ').replace('%','').replace(';','').split();
 
     self.instName      = inst[0];
     self.instSuffix    = inst[1:];
@@ -20,14 +22,24 @@ class Instruction:
 
     self.instName = 'inst_'+self.instName;
 
-#    print ("instName     = '%s'" % self.instName);
-#    print ("instSuffix   = %s" % self.instSuffix);
-#    print ("instArguments= %s" % self.instArguments);
-#    print ("")
+    self.args = " ".join(self.args);
+
+    print ("instName     = '%s'" % self.instName);
+    print ("instSuffix   = %s" % self.instSuffix);
+    print ("instArguments= %s" % self.instArguments);
+    print ("nativeInst   = '%s'" % self.inst);
+    print ("nativeArgs   = '%s'" % self.args);
+    print ("")
 
   def toC(self):
-    cinst = getattr(decompile,self.instName)(self.instSuffix, self.instArguments);
+    cinst = globals()[self.instName](self.instSuffix, self.instArguments, self.inst, self.args);
     return cinst;
+
+  def nativeInst(self):
+    return self.inst;
+
+  def nativeArgs(self):
+    return self.args;
 
 
 # Unit test 
