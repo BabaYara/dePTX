@@ -12,6 +12,6 @@ def inst_st(inst, suffix, arguments, native_inst, native_args):
 #  return cinst;
   if type(suffix) is list:
     suffix = "_".join(suffix);
-  args = ",".join(arguments).replace("(","").replace(")","");
+  args = ",".join(arguments).replace("[","(").replace("]",")");
   cinst = inst+"_"+suffix+' ('+args+');';
   return cinst;

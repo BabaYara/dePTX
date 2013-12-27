@@ -1,6 +1,9 @@
 import sys;
 import Instruction as i;
 
+# def inst_ld_param:
+# def inst_ld_global:
+
 def inst_ld(inst, suffix, arguments, native_inst, native_args):
 #  if (len(suffix) != 1):
 #    print("inst_if: unknown suffix type '%s'" % suffix)
@@ -9,5 +12,6 @@ def inst_ld(inst, suffix, arguments, native_inst, native_args):
 #  return cinst;
   if type(suffix) is list:
     suffix = "_".join(suffix);
-  cinst = inst+"_"+suffix+' ('+','.join(arguments)+');';
+  args = ",".join(arguments).replace("[","(").replace("]",")");
+  cinst = inst+"_"+suffix+' ('+args+');';
   return cinst;

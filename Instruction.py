@@ -34,7 +34,9 @@ class Instruction:
 
     self.instList = [
         "inst_if",
-        "inst_bra"
+        "inst_bra",
+        "inst_ld",
+        "inst_st"
         ]
 
     self.instGen = "inst_gen"
@@ -58,7 +60,7 @@ class Instruction:
 # Unit test 
 if __name__ == "__main__":
   for line in sys.stdin:
-    sys.stderr.write("%s" % line)
+    sys.stderr.write("// %s " % line)
     inst = Instruction(line).toC()
     print ("%s" % inst)
          
