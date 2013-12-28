@@ -5,8 +5,10 @@
 
 __pycache__
 
-#PTXSource
+#misc sources
 *.ptx
+*.cpp
+*.cu
 
 # Compiled Dynamic libraries
 *.so
