@@ -1,5 +1,6 @@
 import sys
 from Position import *
-def PTXError(pos, error):
-  sys.stderr.write( "(%d,%d) : %s " % (pos.row, pos.col, error))
+def PTXError(function, pos, error):
+  sys.stderr.write( "%s error (%d,%d) : %s \n" % (function, pos.row, pos.col, error))
+  sys.exit()
 
