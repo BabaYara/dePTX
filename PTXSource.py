@@ -37,6 +37,9 @@ class PTXSource:
   def __split__(self):
     return self.__remainder__().split();
 
+  def split(self):
+    return self.__split__();
+
   ## public methods
 
   # extract next word in the line
@@ -74,6 +77,13 @@ class PTXSource:
       if self.isEOF():
         break;
 
+  def nextWord(self):
+    word = self.nextWordInLine()
+    if self.isEndOfLine():
+      self.nextNonEmptyLine();
+    return word
+
+
   # check if we are at the end of file 
   def isEOF(self):
     return self.__pos.row >= len(self.__source)
@@ -94,6 +104,10 @@ class PTXSource:
     self.__pos = pos;
   def getPos(self):
     return self.__pos;
+  def getRow(self):
+    return self.__pos.row;
+  def getCol(self):
+    return self.__pos.col;
 
   # from the top..
   def reset(self):
