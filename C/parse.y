@@ -1,7 +1,17 @@
+%locations
+
+%code requires {
+
+#define SourcePos YYLTYPE 
+
+}
+
 %{
 #include <cstdio>
 #include <iostream>
 using namespace std;
+
+
 
 #include "parse.tab.h"  // to get the token types that we return
 
@@ -26,8 +36,17 @@ void yyerror(const char *s);
 }
 
 // define the constant-string tokens:
-%token SNAZZLE TYPE
-%token END ENDL
+%token TOKEN_VERSION TOKEN_TARGET TOKEN_ADDRESS_SIZE;
+%token TOKEN_EXTERN TOKEN_FUNC TOKEN_ENTRY
+%token TOKEN_GLOBAL TOKEN_ALIGN
+%token TOKEN_VISIBLE 
+%token TOKEN_PARAM TOKEN_REG
+%token TOKEN_B8 TOKEN_B16 TOKEN_B32 TOKEN_B64
+%token TOKEN_U8 TOKEN_U16 TOKEN_U32 TOKEN_U64
+%token TOKEN_S8 TOKEN_S16 TOKEN_S32 TOKEN_S64
+%token TOKEN_F32 TOKEN_F64
+%token TOKEN_PRED
+%token ENDL
 
 // define the "terminal symbol" token types I'm going to use (in CAPS
 // by convention), and associate each with a field of the union:
@@ -38,35 +57,18 @@ void yyerror(const char *s);
 %%
 // the first rule defined is the highest-level rule, which in our
 // case is just the concept of a whole "snazzle file":
-snazzle:
-	header template body_section footer { cout << "done with a snazzle file!" << endl; }
-	;
-header:
-	SNAZZLE FLOAT ENDLS { cout << "reading a snazzle file version " << $2 << endl; }
-	;
-template:
-	typelines
-	;
-typelines:
-	typelines typeline
-	| typeline
-	;
-typeline:
-	TYPE STRING ENDLS { cout << "new defined snazzle type: " << $2 << endl; }
-	;
-body_section:
-	body_lines
-	;
-body_lines:
-	body_lines body_line
-	| body_line
-	;
-body_line:
-	INT INT INT INT STRING ENDLS { cout << "new snazzle: " << $1 << $2 << $3 << $4 << $5 << endl; }
-	;
-footer:
-	END ENDLS
-	;
+ptxsource:
+  ENDLS version target address_size ENDLS { std:cerr << "Done reading PTX " << std::endl; }
+
+version:
+  TOKEN_VERSION FLOAT ENDLS { std::cerr << "Reading PTX version " << $2  << std::endl; };
+target:
+  TOKEN_TARGET STRING ENDLS { std::cerr << "Target " << $2  << std::endl; };
+address_size:
+  TOKEN_ADDRESS_SIZE INT { std::cerr << "Address_Size " << $2  << std::endl; };
+
+
+
 ENDLS:
 	ENDLS ENDL
 	| ENDL ;

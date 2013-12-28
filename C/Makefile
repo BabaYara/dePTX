@@ -1,7 +1,7 @@
 all: dePTX
 
 parse.tab.c parse.tab.h: parse.y
-	bison -d parse.y
+	bison -d -v -t parse.y
 
 lex.yy.c: lex.l parse.tab.h
 	flex lex.l

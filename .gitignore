@@ -8,6 +8,7 @@ __pycache__
 #misc sources
 *.ptx
 *.cu
+*.cubin
 
 # Compiled Dynamic libraries
 *.so
