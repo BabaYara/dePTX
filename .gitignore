@@ -7,7 +7,6 @@ __pycache__
 
 #misc sources
 *.ptx
-*.cpp
 *.cu
 
 # Compiled Dynamic libraries
