@@ -1,6 +1,6 @@
 #include <cstdio>
 #include <iostream>
-#include "ptxgrammar.hh"
+#include "PTXParser.h"
 extern "C" FILE *yyin;
 
 int main() {
@@ -15,12 +15,11 @@ int main() {
 	yyin = myfile;
 
 	// parse through the input until there is no more:
-  
-  parser::PTXLexer lexer;
-  parse::PTXParser::State state;
-	
+
+#if 0 
 	do {
 		yyparse();
 	} while (!feof(yyin));
+#endif
 	
 }

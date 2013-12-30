@@ -1,13 +1,13 @@
 all: dePTX
 
-ptxgrammar.cc ptxgrammar.hh:
-	bison -d -v -t ptxgrammar.yy -o ptxgrammar.cc
+ptxgrammar.cpp ptxgrammar.hpp: ptxgrammar.yy
+	bison -d  ptxgrammar.yy -o ptxgrammar.cpp
 
-lex.ptx.cc: ptx.ll ptxgrammar.hh
-	flex ptx.ll
+ptx.cpp: ptx.ll ptxgrammar.hpp
+	flex -t ptx.ll > ptx.cpp
 
-dePTX: lex.ptx.cc ptxgrammar.cc 
-	g++ dePTX.cpp $^ -lfl -o dePTX -L/opt/local/lib
+dePTX: ptx.cpp ptxgrammar.cpp
+	g++ dePTX.cpp $^ -lfl -o dePTX -L/opt/local/lib -I/opt/local/include
 
 clean: 
-	/bin/rm -f *.tab.c *.tab.h *.yy.c dePTX
+	/bin/rm -f ptx.cpp ptxgrammar.cpp ptxgrammar.hpp dePTX

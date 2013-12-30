@@ -6,9 +6,8 @@
 
 %{
 	#include <iostream>
-	#include <ocelot/parser/interface/PTXParser.h>
-	#include <ocelot/parser/interface/PTXLexer.h>
-	#include <hydrazine/interface/debug.h>
+	#include "PTXParser.h"
+	#include "PTXLexer.h"
 	#include <cassert>
 	#include <cstring>
 
@@ -24,9 +23,9 @@
 	{
 	
 	int yylex( YYSTYPE* token, YYLTYPE* location, parser::PTXLexer& lexer, 
-		parser::PTXParser::State& state );
+		parser::PTXParser& state );
 	void yyerror( YYLTYPE* location, parser::PTXLexer& lexer, 
-		parser::PTXParser::State& state, char const* message );
+		parser::PTXParser& state, char const* message );
 	
 	std::string yyTypeToString( int );
 	
@@ -43,9 +42,9 @@
 }
 
 %parse-param {parser::PTXLexer& lexer}
-%parse-param {parser::PTXParser::State& state}
+%parse-param {parser::PTXParser& state}
 %lex-param   {parser::PTXLexer& lexer}
-%lex-param   {parser::PTXParser::State& state}
+%lex-param   {parser::PTXParser& state}
 %pure-parser
 
 %token<text> TOKEN_LABEL TOKEN_IDENTIFIER TOKEN_STRING TOKEN_METADATA
@@ -1613,25 +1612,28 @@ vote : OPCODE_VOTE voteOperation voteDataType operand ',' operand ';'
 %%
 
 int yylex( YYSTYPE* token, YYLTYPE* location, parser::PTXLexer& lexer, 
-	parser::PTXParser::State& state )
+	parser::PTXParser& state )
 {
 	lexer.yylval = token;
 	
 	int tokenValue         = lexer.yylexPosition();
 	location->first_line   = lexer.lineno();
 	location->first_column = lexer.column;
-	
+
+#if 0
 	report( " Lexer (" << location->first_line << ","
 		<< location->first_column 
 		<< "): " << parser::PTXLexer::toString( tokenValue ) << " \"" 
 		<< lexer.YYText() << "\"");
+#endif
 	
 	return tokenValue;
 }
 
 void yyerror( YYLTYPE* location, parser::PTXLexer& lexer, 
-	parser::PTXParser::State& state, char const* message )
+	parser::PTXParser& state, char const* message )
 {
+#if 0
 	parser::PTXParser::Exception exception;
 	std::stringstream stream;
 	stream << parser::PTXParser::toString( *location, state ) 
@@ -1639,6 +1641,7 @@ void yyerror( YYLTYPE* location, parser::PTXLexer& lexer,
 	exception.message = stream.str();
 	exception.error = parser::PTXParser::State::SyntaxError;
 	throw exception;
+#endif
 }
 
 }
