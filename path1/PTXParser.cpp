@@ -13,6 +13,11 @@
 
 namespace parser
 {
+  static std::string removeFuncName(std::string &func, std::string &arg)
+  {
+    const int n = func.length();
+    return std::string(&arg.c_str()[n+1]);
+  }
   PTXParser::PTXParser(std::ostream &_out) : out(_out)
   {
     isArgumentList        = false;
@@ -66,11 +71,11 @@ namespace parser
       out << tokenToDataType(returnArgumentList[0].first);
     out << calleeName << " (\n " 
       << tokenToDataType(argumentList[0].first)
-      << argumentList[0].second << " ";
+      << removeFuncName(calleeName, argumentList[0].second);
     const int narg = argumentList.size();
-    for (int i = 0; i < narg; i++)
-      out << ",\n " << tokenToDataType(argumentList[0].first)
-      << argumentList[i].second;
+    for (int i = 1; i < narg; i++)
+      out << ",\n " << tokenToDataType(argumentList[i].first)
+      << removeFuncName(calleeName, argumentList[i].second);
     out << "\n); \n";
 
 
@@ -114,11 +119,11 @@ namespace parser
     out << "void ";
     out << calleeName << " (\n " 
       << tokenToDataType(argumentList[0].first)
-      << argumentList[0].second << " ";
+      << removeFuncName(calleeName, argumentList[0].second);
     const int narg = argumentList.size();
-    for (int i = 0; i < narg; i++)
-      out << ",\n " << tokenToDataType(argumentList[0].first)
-      << argumentList[i].second;
+    for (int i = 1; i < narg; i++)
+      out << ",\n " << tokenToDataType(argumentList[i].first)
+      << removeFuncName(calleeName, argumentList[i].second);
     out << "\n); \n";
 
 
