@@ -23,11 +23,5 @@ int main() {
     ptx::yyparse(lexer, state);
   }
   while (!input.eof());
-
-#if 0
-	do {
-		yyparse();
-	} while (!feof(yyin));
-#endif
 	
 }

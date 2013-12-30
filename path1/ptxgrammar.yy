@@ -172,6 +172,7 @@ preprocessor : preprocessorCommand
 
 version : TOKEN_VERSION TOKEN_DOUBLE_CONSTANT 
 { 
+  std::cerr << "PTX Version " << $2 << std::endl;
 //	state.version( $<doubleFloat>2, @2 );
 };
 
@@ -518,6 +519,7 @@ functionBegin : TOKEN_FUNCTION
 
 functionName : identifier
 {
+  std::cerr << "Function " << $<text>1 << std::endl;
 	// state.functionName( $<text>1, @1 );
 };
 
@@ -540,6 +542,7 @@ functionBody : functionBodyDefinition openBrace entryStatements closeBrace;
 
 entryName : externOrVisible TOKEN_ENTRY identifier
 {
+  std::cerr << "kernel " << $<text>3 << std::endl;
 	// state.entry( $<text>3, @1 );
 };
 
@@ -1503,7 +1506,7 @@ tex : OPCODE_TEX geometry TOKEN_V4 dataType dataType arrayOperand ',' '['
 	operand ',' arrayOperand ']' ';'
 {
 //	state.tex( $<value>5 );
-	state.convertD( $<value>4, @1 );
+	state.convertD( $<value>4, @1 );  /* must be undeclare for parser to define necessary variables */
 };
 
 colorComponentId : TOKEN_A | TOKEN_B | TOKEN_R | TOKEN_G;
