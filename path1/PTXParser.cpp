@@ -59,7 +59,7 @@ namespace parser
     assert(returnArgumentList.size() <=1);
     out  
       << attributeString(functionAttribute);
-    out << "__device__ ";
+    out << "extern \"C\" __device__ ";
     if (returnArgumentList.empty())
       out << "void ";
     else
@@ -109,7 +109,7 @@ namespace parser
     assert(returnArgumentList.size() <=1);
     out  
       << attributeString(functionAttribute);
-    out << "__global ";
+    out << "extern \"C\" __global ";
     assert (returnArgumentList.empty());
     out << "void ";
     out << calleeName << " (\n " 
@@ -190,6 +190,7 @@ namespace parser
   void PTXParser::initializableDeclaration( const std::string& name,  YYLTYPE& one, YYLTYPE& two )
   {
     out 
+//      << " extern \"C\"  "
       << locationAddressString(stmt_locationAddress)
       << attributeString(stmt_attribute) 
       << tokenToDataType(tokenDataType)  
