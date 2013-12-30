@@ -173,8 +173,7 @@ preprocessor : preprocessorCommand
 
 version : TOKEN_VERSION TOKEN_DOUBLE_CONSTANT 
 { 
-  std::cerr << "PTX Version " << $2 << std::endl;
-//	state.version( $<doubleFloat>2, @2 );
+	state.version( $<doubleFloat>2, @2 );
 };
 
 identifier : '_' | TOKEN_IDENTIFIER | opcode;
@@ -473,32 +472,28 @@ parameter : TOKEN_REG
 argumentDeclaration : parameter addressableVariablePrefix identifier 
 	arrayDimensions
 {
-  std::cerr << "\t" << $<text>3;
-	// state.attribute( false, false, false );
-	// state.argumentDeclaration( $<text>3, @1 );
+  state.attribute( false, false, false );
+  state.argumentDeclaration( $<text>3, @1 );
 };
 
 returnArgumentListBegin : '('
 {
-	// state.returnArgumentListBegin( @1 );
+  state.returnArgumentListBegin( @1 );
 };
 
 returnArgumentListEnd : ')'
 {
-	// state.returnArgumentListEnd( @1 );
+  state.returnArgumentListEnd( @1 );
 };
 
 argumentListBegin : '('
 {
-std::cerr << "(\n ";
-	// state.argumentListBegin( @1 );
+   state.argumentListBegin( @1 );
 };
 
 argumentListEnd : ')'
 {
-std::cerr << ");\n";
-
-	// state.argumentListEnd( @1 );
+	state.argumentListEnd( @1 );
 };
 
 openBrace : '{'
@@ -511,15 +506,9 @@ closeBrace : '}' optionalMetadata
 	// state.closeBrace( @1 );
 };
 
-argumentListBody : argumentDeclaration
-{
-  std::cerr << ", \n ";
-};
+argumentListBody : argumentDeclaration;
 argumentListBody : /* empty string */;
-argumentListBody : argumentListBody ',' argumentDeclaration
-{
-  std::cerr << ", \n ";
-};
+argumentListBody : argumentListBody ',' argumentDeclaration;
 
 returnArgumentList : returnArgumentListBegin argumentListBody 
 	returnArgumentListEnd;
@@ -529,13 +518,12 @@ optionalReturnArgumentList : returnArgumentList | /* empty string */;
 
 functionBegin : TOKEN_FUNCTION
 {
-	// state.functionBegin( @1 );
+	state.functionBegin( @1 );
 };
 
 functionName : identifier
 {
-  std::cerr << "Function " << $<text>1;
-	// state.functionName( $<text>1, @1 );
+	state.functionName( $<text>1, @1 );
 };
 
 optionalSemicolon: ';';
@@ -544,21 +532,20 @@ optionalSemicolon: /* empty string */;
 functionDeclaration : externOrVisible functionBegin optionalReturnArgumentList 
 	functionName argumentList optionalSemicolon
 {
-	// state.functionDeclaration( @4, false );
+  state.functionDeclaration( @4, false );
 };
 
 functionBodyDefinition : externOrVisible functionBegin 
 	optionalReturnArgumentList functionName argumentList
 {
-	// state.functionDeclaration( @4, true );
+   state.functionDeclaration( @4, true );
 };
 
 functionBody : functionBodyDefinition openBrace entryStatements closeBrace;
 
 entryName : externOrVisible TOKEN_ENTRY identifier
 {
-  std::cerr << "Kernel " << $<text>3;
-	// state.entry( $<text>3, @1 );
+  state.entry( $<text>3, @1 );
 };
 
 optionalArgumentList : argumentList;
@@ -654,20 +641,17 @@ performanceDirectives : /* empty string */ | performanceDirectiveList;
 
 externOrVisible : TOKEN_WEAK
 {
-  std::cerr << "__weak ";
-	// state.attribute( false, false, true );
+   state.attribute( false, false, true );
 };
 
 externOrVisible : TOKEN_EXTERN
 {
-  std::cerr << "__extern ";
-	// state.attribute( false, true, false );
+   state.attribute( false, true, false );
 };
 
 externOrVisible : TOKEN_VISIBLE
 {
-  std::cerr << "__visible ";
-	// state.attribute( true, false, false );
+   state.attribute( true, false, false );
 };
 
 externOrVisible : /* empty string */

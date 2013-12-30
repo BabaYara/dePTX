@@ -7,6 +7,8 @@
 #ifndef PTX_PARSER_H_INCLUDED
 #define PTX_PARSER_H_INCLUDED
 
+#include <ostream>
+
 
 #undef yyFlexLexer
 #define yyFlexLexer ptxFlexLexer
@@ -26,8 +28,10 @@ namespace parser
   /*! \brief An implementation of the Parser interface for PTX */
   class PTXParser 
   {
+    std::ostream &out;
     public:
       unsigned int alignment;
+      PTXParser(std::ostream &_out) : out(_out) {};
 
     public:
       void addSpecialRegisters();
@@ -43,7 +47,6 @@ namespace parser
 
     public:
       void preprocessor( int token );
-      void version( double version, YYLTYPE& location );
       void addressSize( unsigned int size );
       void identifierList( const std::string& identifier );
       void identifierList2( const std::string& identifier );
@@ -84,27 +87,9 @@ namespace parser
           const std::string &name, YYLTYPE &location);
       void samplerDeclaration( int token, 
           const std::string &name, YYLTYPE &location);
-      void argumentDeclaration( const std::string& name, 
-          YYLTYPE& location );
       void paramArgumentDeclaration(int token);
 
-      void openBrace( YYLTYPE& location );
-      void closeBrace( YYLTYPE& location );
-      void returnArgumentListBegin( YYLTYPE& location );
-      void returnArgumentListEnd( YYLTYPE& location );
-      void argumentListBegin( YYLTYPE& location );
-      void argumentListEnd( YYLTYPE& location );
 
-      void functionBegin( YYLTYPE& location );
-      void functionName( const std::string& name, 
-          YYLTYPE& location );
-      void functionDeclaration( YYLTYPE& location, bool body );
-
-      void entry( const std::string& name, YYLTYPE& location );
-      void entryDeclaration( YYLTYPE& location );
-      void entryPrototype( YYLTYPE& location );
-      void entryStatement( YYLTYPE& location );
-      void metadata( const std::string& comment );
 
       void locationAddress( int token );
       void uninitializableDeclaration( const std::string& name );
@@ -178,6 +163,30 @@ namespace parser
           const std::string& identifier, YYLTYPE& location );
       void callTargets( const std::string& name, 
           YYLTYPE& location );
+
+      /*************/
+      public:
+        void version( double version, YYLTYPE& location );
+        void argumentDeclaration( const std::string& name, YYLTYPE& location );
+        void argumentListBegin( YYLTYPE& location );
+        void argumentListEnd( YYLTYPE& location );
+
+        void functionBegin( YYLTYPE& location );
+        void functionName( const std::string& name, YYLTYPE& location );
+        void functionDeclaration( YYLTYPE& location, bool body );
+
+        void entry( const std::string& name, YYLTYPE& location );
+        void entryDeclaration( YYLTYPE& location );
+        void entryPrototype( YYLTYPE& location );
+        void entryStatement( YYLTYPE& location );
+        void metadata( const std::string& comment );
+
+        void openBrace( YYLTYPE& location );
+        void closeBrace( YYLTYPE& location );
+        void returnArgumentListBegin( YYLTYPE& location );
+        void returnArgumentListEnd( YYLTYPE& location );
+
+
   };
 
 }

@@ -7,9 +7,10 @@
 int main() {
 	// open a file handle to a particular file:
   std::istream & input = std::cin;
+  std::ostream & error = std::cerr;
   std::ostream & output = std::cout;
-  parser::PTXLexer lexer(&input, &output);
-  parser::PTXParser state;
+  parser::PTXLexer lexer(&input, &error);
+  parser::PTXParser state(output);
 
 	// parse through the input until there is no more:
   //
