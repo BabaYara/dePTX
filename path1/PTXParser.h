@@ -16,6 +16,10 @@
 #include "PTXLexer.h"
 
 #include <vector>
+namespace ptx
+{ 
+	extern int yyparse( parser::PTXLexer&, parser::PTXParser& );
+}
 
 namespace parser
 {

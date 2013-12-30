@@ -4,11 +4,6 @@
 #include <cassert>
 #include "PTXParser.h"
 
-namespace ptx
-{
-  int yyparse (parser::PTXLexer& lexer, parser::PTXParser& state);
-}
-
 int main() {
 	// open a file handle to a particular file:
   std::istream & input = std::cin;

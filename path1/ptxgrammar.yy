@@ -10,6 +10,7 @@
 	#include "PTXLexer.h"
 	#include <cassert>
 	#include <cstring>
+  #include <sstream>
 
 	#define YYERROR_VERBOSE 1
 
@@ -302,10 +303,14 @@ pointerDataTypeId: TOKEN_U64 | TOKEN_U32;
 
 dataTypeId : TOKEN_U8 | TOKEN_U16 | TOKEN_U32 | TOKEN_U64 | TOKEN_S8 
 	| TOKEN_S16 | TOKEN_S32 | TOKEN_S64 | TOKEN_B8 | TOKEN_B16 | TOKEN_B32 
-	| TOKEN_B64 | TOKEN_F16 | TOKEN_F32 | TOKEN_F64 | TOKEN_PRED;
+	| TOKEN_B64 | TOKEN_F16 | TOKEN_F32 | TOKEN_F64 | TOKEN_PRED
+{
+ // return $<value>1;
+};
 
 dataType : dataTypeId
 {
+//  return $<value>1;
 	// state.dataType( $<value>1 );
 };
 
@@ -468,6 +473,7 @@ parameter : TOKEN_REG
 argumentDeclaration : parameter addressableVariablePrefix identifier 
 	arrayDimensions
 {
+  std::cerr << "\t" << $<text>3;
 	// state.attribute( false, false, false );
 	// state.argumentDeclaration( $<text>3, @1 );
 };
@@ -484,11 +490,14 @@ returnArgumentListEnd : ')'
 
 argumentListBegin : '('
 {
+std::cerr << "(\n ";
 	// state.argumentListBegin( @1 );
 };
 
 argumentListEnd : ')'
 {
+std::cerr << ");\n";
+
 	// state.argumentListEnd( @1 );
 };
 
@@ -502,9 +511,15 @@ closeBrace : '}' optionalMetadata
 	// state.closeBrace( @1 );
 };
 
-argumentListBody : argumentDeclaration;
+argumentListBody : argumentDeclaration
+{
+  std::cerr << ", \n ";
+};
 argumentListBody : /* empty string */;
-argumentListBody : argumentListBody ',' argumentDeclaration;
+argumentListBody : argumentListBody ',' argumentDeclaration
+{
+  std::cerr << ", \n ";
+};
 
 returnArgumentList : returnArgumentListBegin argumentListBody 
 	returnArgumentListEnd;
@@ -519,7 +534,7 @@ functionBegin : TOKEN_FUNCTION
 
 functionName : identifier
 {
-  std::cerr << "Function " << $<text>1 << std::endl;
+  std::cerr << "Function " << $<text>1;
 	// state.functionName( $<text>1, @1 );
 };
 
@@ -542,7 +557,7 @@ functionBody : functionBodyDefinition openBrace entryStatements closeBrace;
 
 entryName : externOrVisible TOKEN_ENTRY identifier
 {
-  std::cerr << "kernel " << $<text>3 << std::endl;
+  std::cerr << "Kernel " << $<text>3;
 	// state.entry( $<text>3, @1 );
 };
 
@@ -639,16 +654,19 @@ performanceDirectives : /* empty string */ | performanceDirectiveList;
 
 externOrVisible : TOKEN_WEAK
 {
+  std::cerr << "__weak ";
 	// state.attribute( false, false, true );
 };
 
 externOrVisible : TOKEN_EXTERN
 {
+  std::cerr << "__extern ";
 	// state.attribute( false, true, false );
 };
 
 externOrVisible : TOKEN_VISIBLE
 {
+  std::cerr << "__visible ";
 	// state.attribute( true, false, false );
 };
 
@@ -1632,19 +1650,29 @@ int yylex( YYSTYPE* token, YYLTYPE* location, parser::PTXLexer& lexer,
 	
 	return tokenValue;
 }
+	
+static std::string toString( YYLTYPE& location, parser::PTXParser& state )
+{
+  std::stringstream stream;
+  stream 
+#if 0
+  << state.fileName 
+#else
+  << "ptx "
+#endif
+  << " (" << location.first_line << ", " 
+    << location.first_column << "): ";
+  return stream.str();
+}
 
 void yyerror( YYLTYPE* location, parser::PTXLexer& lexer, 
 	parser::PTXParser& state, char const* message )
 {
-#if 0
-	parser::PTXParser::Exception exception;
 	std::stringstream stream;
-	stream << parser::PTXParser::toString( *location, state ) 
+	stream << toString( *location, state ) 
 		<< " " << message;
-	exception.message = stream.str();
-	exception.error = parser::PTXParser::State::SyntaxError;
-	throw exception;
-#endif
+  fprintf(stderr, "--ERROR-- %s %s \n", toString(*location, state).c_str(), message);
+  assert(0);
 }
 
 }
