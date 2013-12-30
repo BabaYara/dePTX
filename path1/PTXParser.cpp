@@ -94,11 +94,13 @@ namespace parser
   void PTXParser::attribute( bool visible, bool external, bool weak )
   {
     if (visible)
-      out << "__visible ";
+      stmt_attribute = VISIBLE;
     else if (external)
-      out << "__extern ";
+      stmt_attribute = EXTERN;
     else if (weak)
-      out << "__weak ";
+      stmt_attribute = WEAK;
+    else
+      stmt_attribute = NONE;
   }
 
   void PTXParser::dataType( int token )
@@ -119,6 +121,7 @@ namespace parser
   void PTXParser::initializableDeclaration( const std::string& name,  YYLTYPE& one, YYLTYPE& two )
   {
     out 
+      << attributeString(stmt_attribute) 
       << tokenToDataType(tokenDataType)  << " "
       <<  name.c_str() 
       << "[" << nValuesInitializer << "]= { " << decimalList[0];
@@ -182,6 +185,17 @@ namespace parser
     }
 
     return "";
+  }
+
+  std::string PTXParser::attributeString(attribute_t attr)
+  {
+    switch (attr)
+    {
+      case VISIBLE: return " ";
+      case EXTERN:  return " .extern "; 
+      case WEAK:    return " .weak ";
+      default:      return " .static ";
+    };
   }
 
 }

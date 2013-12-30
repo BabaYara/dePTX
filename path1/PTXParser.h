@@ -161,6 +161,9 @@ namespace parser
         unsigned long long nValuesInitializer;
         int tokenDataType;
 
+        enum attribute_t { VISIBLE, EXTERN, WEAK, NONE};
+        attribute_t stmt_attribute;
+
       /*************/
       public:
         void version( double version, YYLTYPE& location );
@@ -198,6 +201,7 @@ namespace parser
         void decimalListSingle2( long long int value );
 
         std::string tokenToDataType( int token );
+        std::string attributeString(attribute_t attr);
   };
 
 }
