@@ -289,7 +289,7 @@ addressSpaceIdentifier : TOKEN_CONST | TOKEN_GLOBAL | TOKEN_LOCAL
 
 addressSpace : addressSpaceIdentifier
 {
-	// state.addressSpace( $<value>1 );
+   state.addressSpace( $<value>1 );
 };
 
 optionalAddressSpace : addressSpace;
@@ -309,13 +309,12 @@ dataTypeId : TOKEN_U8 | TOKEN_U16 | TOKEN_U32 | TOKEN_U64 | TOKEN_S8
 
 dataType : dataTypeId
 {
-//  return $<value>1;
    state.dataType( $<value>1 );
 };
 
 pointerDataType : pointerDataTypeId
 {
-	// state.dataType( $<value>1 );
+   state.dataType( $<value>1 );
 };
 
 vectorToken : TOKEN_V2 | TOKEN_V4;
@@ -431,6 +430,7 @@ globalSharedDeclaration : externOrVisible TOKEN_SHARED
 initializableDeclaration : initializable addressableVariablePrefix 
 	identifier arrayDimensions initializer ';'
 {
+  std::cerr << " --- " << $<text>3 << std::endl;  
 	// state.initializableDeclaration( $<text>3, @3, @5 );
 	// state.statementEnd( @3 );
 };
@@ -1029,7 +1029,7 @@ atomicOperation : atomicOperationId
 atomModifier: addressSpace;
 atomModifier: /* empty string */
 {
-	// state.addressSpace(TOKEN_GLOBAL);
+   state.addressSpace(TOKEN_GLOBAL);
 }
 
 atom : OPCODE_ATOM atomModifier atomicOperation dataType operand ',' '[' 

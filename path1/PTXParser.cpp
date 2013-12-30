@@ -103,8 +103,14 @@ namespace parser
   void PTXParser::dataType( int token )
   {
     if (isArgumentList || isReturnArgumentList)
-      std::cerr << " " << tokenToDataType(token).c_str() << " ";
+      out << " " << tokenToDataType(token).c_str() << " ";
   }
+  void PTXParser::addressSpace( int token )
+  {
+  }
+
+
+  /****************/
 
   std::string PTXParser::tokenToDataType( int token )
   {
@@ -131,6 +137,7 @@ namespace parser
 
     return "";
   }
+
 }
 
 #endif

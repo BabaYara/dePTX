@@ -61,7 +61,6 @@ namespace parser
       void targetElement( int token );
       void target();
       void noAddressSpace();
-      void addressSpace( int token );
       void statementVectorType( int token );
       void instructionVectorType( int token );
       void attribute( bool visible, bool external, bool weak );
@@ -191,6 +190,7 @@ namespace parser
         void returnArgumentListEnd( YYLTYPE& location );
 
         void dataType( int token );
+        void addressSpace( int token );
 
         std::string tokenToDataType( int token );
   };
