@@ -153,7 +153,7 @@ nonEntryStatements : version | target | registerDeclaration | fileDeclaration
 
 nonEntryStatement : nonEntryStatements
 {
-	state.statementEnd( @1 );
+//	state.statementEnd( @1 );
 };
 
 statement : initializableDeclaration | nonEntryStatement | entry | functionBody
@@ -167,12 +167,12 @@ preprocessorCommand : PREPROCESSOR_INCLUDE | PREPROCESSOR_DEFINE
 
 preprocessor : preprocessorCommand
 {
-	state.preprocessor( $<value>1 );
+//	state.preprocessor( $<value>1 );
 };
 
 version : TOKEN_VERSION TOKEN_DOUBLE_CONSTANT 
 { 
-	state.version( $<doubleFloat>2, @2 );
+//	state.version( $<doubleFloat>2, @2 );
 };
 
 identifier : '_' | TOKEN_IDENTIFIER | opcode;
@@ -180,44 +180,44 @@ optionalIdentifier : /* empty string */ | identifier;
 
 identifierList : identifier
 {
-	state.identifierList( $<text>1 );
+	// state.identifierList( $<text>1 );
 };
 
 identifierList : identifierList ',' identifier
 {
-	state.identifierList2( $<text>3 );
+	// state.identifierList2( $<text>3 );
 };
 
 decimalListSingle : identifier
 {
-	state.decimalListSingle( 0 );
-	state.symbolListSingle( $<text>1 );
+	// state.decimalListSingle( 0 );
+	// state.symbolListSingle( $<text>1 );
 };
 
 decimalListSingle : decimalListSingle ',' identifier
 {
-	state.decimalListSingle2( 0 );
-	state.symbolListSingle2( $<text>3 );
+	// state.decimalListSingle2( 0 );
+	// state.symbolListSingle2( $<text>3 );
 };
 
 decimalListSingle : TOKEN_DECIMAL_CONSTANT
 {
-	state.decimalListSingle( $<value>1 );
+	// state.decimalListSingle( $<value>1 );
 };
 
 optionalMetadata : /* empty string */
 {
-    state.metadata("");
+    // state.metadata("");
 };
 
 optionalMetadata : TOKEN_METADATA
 {
-    state.metadata( $<text>1 );
+    // state.metadata( $<text>1 );
 };
 
 decimalListSingle : decimalListSingle ',' TOKEN_DECIMAL_CONSTANT
 {
-	state.decimalListSingle2( $<value>3 );
+	// state.decimalListSingle2( $<value>3 );
 };
 
 decimalList : '{' decimalList '}' ',' '{' decimalList '}';
@@ -228,12 +228,12 @@ decimalInitializer : decimalList | '{' decimalList '}' |
 
 floatListSingle : TOKEN_DOUBLE_CONSTANT
 {
-	state.floatList( $<doubleFloat>1 );
+	// state.floatList( $<doubleFloat>1 );
 };
 
 floatListSingle : floatListSingle ',' TOKEN_DOUBLE_CONSTANT
 {
-	state.floatList1( $<doubleFloat>3 );
+	// state.floatList1( $<doubleFloat>3 );
 };
 
 floatList : '{' floatList '}' ',' '{' floatList '}';
@@ -244,12 +244,12 @@ floatInitializer : floatList |  '{' floatList '}' | '{' floatListSingle '}'
 
 singleListSingle : TOKEN_SINGLE_CONSTANT
 {
-	state.singleList( $<singleFloat>1 );
+	// state.singleList( $<singleFloat>1 );
 };
 
 singleListSingle : singleListSingle ',' TOKEN_SINGLE_CONSTANT
 {
-	state.singleList1( $<singleFloat>3 );
+	// state.singleList1( $<singleFloat>3 );
 };
 
 singleList : '{' singleList '}' ',' '{' singleList '}';
@@ -267,7 +267,7 @@ textureOption: TOKEN_TEXMODE_INDEPENDENT | TOKEN_TEXMODE_UNIFIED;
 targetOption : shaderModel | floatingPointOption | textureOption;
 targetElement : targetOption
 {
-	state.targetElement( $<value>1 );
+	// state.targetElement( $<value>1 );
 };
 
 targetElementList : /* empty string */ | targetElement 
@@ -275,12 +275,12 @@ targetElementList : /* empty string */ | targetElement
 
 target : TOKEN_TARGET targetElementList
 {
-	state.target();
+	// state.target();
 };
 
 addressSize : TOKEN_ADDRESS_SIZE TOKEN_DECIMAL_CONSTANT
 {
-	state.addressSize( $<value>2 );
+	// state.addressSize( $<value>2 );
 };
 
 addressSpaceIdentifier : TOKEN_CONST | TOKEN_GLOBAL | TOKEN_LOCAL
@@ -288,13 +288,13 @@ addressSpaceIdentifier : TOKEN_CONST | TOKEN_GLOBAL | TOKEN_LOCAL
 
 addressSpace : addressSpaceIdentifier
 {
-	state.addressSpace( $<value>1 );
+	// state.addressSpace( $<value>1 );
 };
 
 optionalAddressSpace : addressSpace;
 optionalAddressSpace : /* empty string */
 {
-	state.noAddressSpace();
+	// state.noAddressSpace();
 };
 
 pointerDataTypeId: TOKEN_U64 | TOKEN_U32;
@@ -305,24 +305,24 @@ dataTypeId : TOKEN_U8 | TOKEN_U16 | TOKEN_U32 | TOKEN_U64 | TOKEN_S8
 
 dataType : dataTypeId
 {
-	state.dataType( $<value>1 );
+	// state.dataType( $<value>1 );
 };
 
 pointerDataType : pointerDataTypeId
 {
-	state.dataType( $<value>1 );
+	// state.dataType( $<value>1 );
 };
 
 vectorToken : TOKEN_V2 | TOKEN_V4;
 
 statementVectorType : vectorToken
 {
-	state.statementVectorType( $<value>1 );
+	// state.statementVectorType( $<value>1 );
 };
 
 instructionVectorType : vectorToken
 {
-	state.instructionVectorType( $<value>1 );
+	// state.instructionVectorType( $<value>1 );
 };
 
 optionalInstructionVectorType : instructionVectorType;
@@ -333,7 +333,7 @@ alignment : TOKEN_ALIGN TOKEN_DECIMAL_CONSTANT { state.alignment = $<value>2; };
 kernelParameterPtrSpace: TOKEN_GLOBAL | TOKEN_CONST | TOKEN_LOCAL | TOKEN_SHARED;
 parameterAttribute: TOKEN_PTR kernelParameterPtrSpace
 {
-	state.paramArgumentDeclaration($<value>2);
+	// state.paramArgumentDeclaration($<value>2);
 }
 
 addressableVariablePrefix : dataType statementVectorType {state.alignment = 1;};
@@ -351,22 +351,22 @@ addressableVariablePrefix : dataType parameterAttribute alignment;
 
 arrayDimensionSet : '[' TOKEN_DECIMAL_CONSTANT ']'
 {
-	state.arrayDimensionSet( $<value>2, @2, false );
+	// state.arrayDimensionSet( $<value>2, @2, false );
 };
 
 arrayDimensionSet : arrayDimensionSet '[' TOKEN_DECIMAL_CONSTANT ']'
 {
-	state.arrayDimensionSet( $<value>3, @3, true );
+	// state.arrayDimensionSet( $<value>3, @3, true );
 };
 
 arrayDimensionSet : '[' ']'
 {
-	state.arrayDimensionSet( );
+	// state.arrayDimensionSet( );
 };
 
 arrayDimensions : /* empty string */
 {
-	state.arrayDimensions();
+	// state.arrayDimensions();
 };
 
 arrayDimensions : arrayDimensionSet;
@@ -375,7 +375,7 @@ initializer : /* empty string */;
 
 assignment : '='
 {
-	state.assignment();
+	// state.assignment();
 };
 
 initializer : assignment decimalInitializer | assignment floatInitializer 
@@ -383,22 +383,22 @@ initializer : assignment decimalInitializer | assignment floatInitializer
 
 registerIdentifierList : identifier
 {
-	state.registerDeclaration( $<text>1, @1 );
+	// state.registerDeclaration( $<text>1, @1 );
 };
 
 registerIdentifierList : identifier '<' TOKEN_DECIMAL_CONSTANT '>'
 {
-	state.registerDeclaration( $<text>1, @1, $<value>3 );
+	// state.registerDeclaration( $<text>1, @1, $<value>3 );
 };
 
 registerSeperator : ','
 {
-	state.registerSeperator( @1 );
+	// state.registerSeperator( @1 );
 };
 
 registerIdentifierList : registerIdentifierList registerSeperator identifier
 {
-	state.registerDeclaration( $<text>3, @3 );
+	// state.registerDeclaration( $<text>3, @3 );
 };
 
 registerPrefix : statementVectorType dataType;
@@ -413,92 +413,92 @@ optionalTimestampAndSize : ',' TOKEN_DECIMAL_CONSTANT
 fileDeclaration : TOKEN_FILE TOKEN_DECIMAL_CONSTANT TOKEN_STRING
 	optionalTimestampAndSize
 {
-	state.fileDeclaration( $<value>2, $<text>3 );
+	// state.fileDeclaration( $<value>2, $<text>3 );
 };
 
 globalSharedDeclaration : externOrVisible TOKEN_SHARED 
 	addressableVariablePrefix identifier arrayDimensions ';'
 {
-	state.locationAddress( $<value>2 );
-	state.initializableDeclaration( $<text>4, @4, @6 );
+	// state.locationAddress( $<value>2 );
+	// state.initializableDeclaration( $<text>4, @4, @6 );
 };
 
 initializableDeclaration : initializable addressableVariablePrefix 
 	identifier arrayDimensions initializer ';'
 {
-	state.initializableDeclaration( $<text>3, @3, @5 );
-	state.statementEnd( @3 );
+	// state.initializableDeclaration( $<text>3, @3, @5 );
+	// state.statementEnd( @3 );
 };
 
 globalLocalDeclaration:  externOrVisible TOKEN_LOCAL 
 	addressableVariablePrefix identifier arrayDimensions ';'
 {
-	state.locationAddress( $<value>2 );
-	state.initializableDeclaration( $<text>4, @4, @6 );
+	// state.locationAddress( $<value>2 );
+	// state.initializableDeclaration( $<text>4, @4, @6 );
 }
 
 textureSpace : TOKEN_PARAM | TOKEN_GLOBAL;
 
 textureDeclaration : externOrVisible textureSpace TOKEN_TEXREF identifier ';'
 {
-	state.textureDeclaration( $<value>2, $<text>4, @1 );
+	// state.textureDeclaration( $<value>2, $<text>4, @1 );
 };
 
 samplerDeclaration : externOrVisible textureSpace TOKEN_SAMPLERREF identifier ';'
 {
-	state.samplerDeclaration( $<value>2, $<text>4, @1 );
+	// state.samplerDeclaration( $<value>2, $<text>4, @1 );
 };
 
 surfaceDeclaration : externOrVisible textureSpace TOKEN_SURFREF identifier ';'
 {
-	state.surfaceDeclaration( $<value>2, $<text>4, @1 );
+	// state.surfaceDeclaration( $<value>2, $<text>4, @1 );
 };
 
 parameter : TOKEN_PARAM
 {
-	state.locationAddress( $<value>1 );
+	// state.locationAddress( $<value>1 );
 };
 
 parameter : TOKEN_REG
 {
-	state.locationAddress( $<value>1 );
+	// state.locationAddress( $<value>1 );
 };
 
 argumentDeclaration : parameter addressableVariablePrefix identifier 
 	arrayDimensions
 {
-	state.attribute( false, false, false );
-	state.argumentDeclaration( $<text>3, @1 );
+	// state.attribute( false, false, false );
+	// state.argumentDeclaration( $<text>3, @1 );
 };
 
 returnArgumentListBegin : '('
 {
-	state.returnArgumentListBegin( @1 );
+	// state.returnArgumentListBegin( @1 );
 };
 
 returnArgumentListEnd : ')'
 {
-	state.returnArgumentListEnd( @1 );
+	// state.returnArgumentListEnd( @1 );
 };
 
 argumentListBegin : '('
 {
-	state.argumentListBegin( @1 );
+	// state.argumentListBegin( @1 );
 };
 
 argumentListEnd : ')'
 {
-	state.argumentListEnd( @1 );
+	// state.argumentListEnd( @1 );
 };
 
 openBrace : '{'
 {
-	state.openBrace( @1 );
+	// state.openBrace( @1 );
 };
 
 closeBrace : '}' optionalMetadata
 {
-	state.closeBrace( @1 );
+	// state.closeBrace( @1 );
 };
 
 argumentListBody : argumentDeclaration;
@@ -513,12 +513,12 @@ optionalReturnArgumentList : returnArgumentList | /* empty string */;
 
 functionBegin : TOKEN_FUNCTION
 {
-	state.functionBegin( @1 );
+	// state.functionBegin( @1 );
 };
 
 functionName : identifier
 {
-	state.functionName( $<text>1, @1 );
+	// state.functionName( $<text>1, @1 );
 };
 
 optionalSemicolon: ';';
@@ -527,20 +527,20 @@ optionalSemicolon: /* empty string */;
 functionDeclaration : externOrVisible functionBegin optionalReturnArgumentList 
 	functionName argumentList optionalSemicolon
 {
-	state.functionDeclaration( @4, false );
+	// state.functionDeclaration( @4, false );
 };
 
 functionBodyDefinition : externOrVisible functionBegin 
 	optionalReturnArgumentList functionName argumentList
 {
-	state.functionDeclaration( @4, true );
+	// state.functionDeclaration( @4, true );
 };
 
 functionBody : functionBodyDefinition openBrace entryStatements closeBrace;
 
 entryName : externOrVisible TOKEN_ENTRY identifier
 {
-	state.entry( $<text>3, @1 );
+	// state.entry( $<text>3, @1 );
 };
 
 optionalArgumentList : argumentList;
@@ -548,7 +548,7 @@ optionalArgumentList : /* empty string */;
 
 entryDeclaration : entryName optionalArgumentList performanceDirectives
 {
-	state.entryDeclaration( @1 );
+	// state.entryDeclaration( @1 );
 };
 
 entry : entryDeclaration openBrace entryStatements closeBrace;
@@ -557,7 +557,7 @@ entry : entryDeclaration openBrace closeBrace;
 
 entry : entryDeclaration ';'
 {
-	state.entryPrototype( @1 );
+	// state.entryPrototype( @1 );
 };
 
 entryStatement : registerDeclaration | location | label | pragma 
@@ -567,13 +567,13 @@ completeEntryStatement : uninitializableDeclaration;
 
 completeEntryStatement : entryStatement
 {
-	state.statementEnd( @1 );
+	// state.statementEnd( @1 );
 };
 
 completeEntryStatement : guard instruction optionalMetadata
 {
-	state.entryStatement( @2 );
-	state.instruction();
+	// state.entryStatement( @2 );
+	// state.instruction();
 };
 
 completeEntryStatement : openBrace entryStatements closeBrace;
@@ -583,50 +583,50 @@ entryStatements : entryStatements completeEntryStatement;
 
 maxnreg : TOKEN_MAXNREG TOKEN_DECIMAL_CONSTANT
 {
-	state.maxnreg( $<value>2 );
+	// state.maxnreg( $<value>2 );
 };
 
 maxntid : TOKEN_MAXNTID TOKEN_DECIMAL_CONSTANT
 {
-	state.maxntid( $<value>2 );
+	// state.maxntid( $<value>2 );
 };
 
 maxntid : TOKEN_MAXNTID TOKEN_DECIMAL_CONSTANT ',' TOKEN_DECIMAL_CONSTANT
 {
-	state.maxntid( $<value>2, $<value>4 );
+	// state.maxntid( $<value>2, $<value>4 );
 };
 
 maxntid : TOKEN_MAXNTID TOKEN_DECIMAL_CONSTANT ',' TOKEN_DECIMAL_CONSTANT ',' 
 	TOKEN_DECIMAL_CONSTANT
 {
-	state.maxntid( $<value>2, $<value>4, $<value>6 );
+	// state.maxntid( $<value>2, $<value>4, $<value>6 );
 };
 
 ctapersm : shaderModel ':' TOKEN_DECIMAL_CONSTANT
 {
-	state.ctapersm( $<value>1, $<value>3 );
+	// state.ctapersm( $<value>1, $<value>3 );
 };
 
 ctapersmList : ctapersm | ctapersmList ',' ctapersm;
 
 minnctapersm : TOKEN_MINNCTAPERSM TOKEN_DECIMAL_CONSTANT
 {
-	state.minnctapersm( $<value>2 );
+	// state.minnctapersm( $<value>2 );
 };
 
 minnctapersm : TOKEN_MINNCTAPERSM ctapersmList
 {
-	state.minnctapersm( );
+	// state.minnctapersm( );
 };
 
 maxnctapersm : TOKEN_MAXNCTAPERSM TOKEN_DECIMAL_CONSTANT
 {
-	state.maxnctapersm( $<value>2 );
+	// state.maxnctapersm( $<value>2 );
 };
 
 maxnctapersm : TOKEN_MAXNCTAPERSM ctapersmList
 {
-	state.maxnctapersm();
+	// state.maxnctapersm();
 };
 
 performanceDirective : maxnreg | maxntid | maxnctapersm | minnctapersm;
@@ -636,22 +636,22 @@ performanceDirectives : /* empty string */ | performanceDirectiveList;
 
 externOrVisible : TOKEN_WEAK
 {
-	state.attribute( false, false, true );
+	// state.attribute( false, false, true );
 };
 
 externOrVisible : TOKEN_EXTERN
 {
-	state.attribute( false, true, false );
+	// state.attribute( false, true, false );
 };
 
 externOrVisible : TOKEN_VISIBLE
 {
-	state.attribute( true, false, false );
+	// state.attribute( true, false, false );
 };
 
 externOrVisible : /* empty string */
 {
-	state.attribute( false, false, false );
+	// state.attribute( false, false, false );
 };
 
 uninitializableAddress : TOKEN_LOCAL | TOKEN_SHARED | TOKEN_PARAM;
@@ -659,12 +659,12 @@ initializableAddress : TOKEN_CONST | TOKEN_GLOBAL;
 
 uninitializable : externOrVisible uninitializableAddress
 {
-	state.locationAddress( $<value>2 );
+	// state.locationAddress( $<value>2 );
 };
 
 initializable : externOrVisible initializableAddress
 {
-	state.locationAddress( $<value>2 );
+	// state.locationAddress( $<value>2 );
 };
 
 opcode : OPCODE_COS | OPCODE_SQRT | OPCODE_ADD | OPCODE_RSQRT | OPCODE_ADDC
@@ -687,29 +687,29 @@ opcode : OPCODE_COS | OPCODE_SQRT | OPCODE_ADD | OPCODE_RSQRT | OPCODE_ADDC
 uninitializableDeclaration : uninitializable addressableVariablePrefix 
 	identifier arrayDimensions ';'
 {
-	state.uninitializableDeclaration( $<text>3 );
-	state.statementEnd( @2 );
+	// state.uninitializableDeclaration( $<text>3 );
+	// state.statementEnd( @2 );
 };
 
 location : TOKEN_LOC TOKEN_DECIMAL_CONSTANT TOKEN_DECIMAL_CONSTANT 
 	TOKEN_DECIMAL_CONSTANT
 {
-	state.location( $<value>2, $<value>3, $<value>4 );
+	// state.location( $<value>2, $<value>3, $<value>4 );
 };
 
 label : TOKEN_LABEL optionalMetadata
 {
-	state.label( $<text>1 );
+	// state.label( $<text>1 );
 };
 
 labelOperand : identifier
 {
-	state.labelOperand( $<text>1 );
+	// state.labelOperand( $<text>1 );
 };
 
 returnType : parameter dataTypeId optionalIdentifier
 {
-	state.returnType( $<value>2 );
+	// state.returnType( $<value>2 );
 };
 
 returnTypeListBody : returnType;
@@ -721,7 +721,7 @@ optionalAlignment : /* empty string */ | alignment;
 argumentType : parameter optionalAlignment dataTypeId
 	optionalIdentifier arrayDimensions
 {
-	state.argumentType( $<value>3 );
+	// state.argumentType( $<value>3 );
 };
 
 argumentTypeListBody : argumentType;
@@ -731,29 +731,29 @@ argumentTypeList : '(' argumentTypeListBody ')' | '(' ')';
 callprototype : TOKEN_LABEL TOKEN_CALL_PROTOTYPE returnTypeList identifier 
 	argumentTypeList ';'
 {
-	state.callPrototype( $<text>1, $<text>4, @1 );
+	// state.callPrototype( $<text>1, $<text>4, @1 );
 };
 
 calltargets : TOKEN_LABEL TOKEN_CALL_TARGETS identifierList ';'
 {
-	state.callTargets( $<text>1, @1 );
+	// state.callTargets( $<text>1, @1 );
 };
 
 pragma : TOKEN_PRAGMA TOKEN_STRING
 {
-	state.pragma( $<text>2 );
+	// state.pragma( $<text>2 );
 };
 
 pragma : TOKEN_PRAGMA TOKEN_STRING ';'
 {
-	state.pragma( $<text>2 );
+	// state.pragma( $<text>2 );
 };
 
 vectorIndex : TOKEN_X | TOKEN_Y | TOKEN_Z | TOKEN_W;
 
 optionalVectorIndex : vectorIndex
 {
-	state.vectorIndex( $<value>1 );
+	// state.vectorIndex( $<value>1 );
 };
 
 optionalVectorIndex : /* empty string */
@@ -763,47 +763,47 @@ optionalVectorIndex : /* empty string */
 
 nonLabelOperand : identifier optionalVectorIndex
 {
-	state.nonLabelOperand( $<text>1, @1, false );
+	// state.nonLabelOperand( $<text>1, @1, false );
 };
 
 nonLabelOperand : '!' identifier
 {
-	state.nonLabelOperand( $<text>2, @1, true );
+	// state.nonLabelOperand( $<text>2, @1, true );
 };
 
 constantOperand : TOKEN_DECIMAL_CONSTANT
 {
-	state.constantOperand( $<value>1 );
+	// state.constantOperand( $<value>1 );
 };
 
 constantOperand : TOKEN_UNSIGNED_DECIMAL_CONSTANT
 {
-	state.constantOperand( $<uvalue>1 );
+	// state.constantOperand( $<uvalue>1 );
 };
 
 constantOperand : TOKEN_DOUBLE_CONSTANT
 {
-	state.constantOperand( $<doubleFloat>1 );
+	// state.constantOperand( $<doubleFloat>1 );
 };
 
 constantOperand : TOKEN_SINGLE_CONSTANT
 {
-	state.constantOperand( $<singleFloat>1 );
+	// state.constantOperand( $<singleFloat>1 );
 };
 
 addressableOperand : identifier
 {
-	state.addressableOperand( $<text>1, 0, @1, false );
+	// state.addressableOperand( $<text>1, 0, @1, false );
 };
 
 offsetAddressableOperand : identifier '+' TOKEN_DECIMAL_CONSTANT
 {
-	state.addressableOperand( $<text>1, $<value>3, @1, false );
+	// state.addressableOperand( $<text>1, $<value>3, @1, false );
 };
 
 offsetAddressableOperand : identifier '-' TOKEN_DECIMAL_CONSTANT
 {
-	state.addressableOperand( $<text>1, $<value>3, @1, true );
+	// state.addressableOperand( $<text>1, $<value>3, @1, true );
 };
 
 callOperand : operand
@@ -816,22 +816,22 @@ branchOperand : labelOperand;
 arrayOperand : operand;
 arrayOperand : '{' identifierList '}'
 {
-	state.arrayOperand( @1 );
+	// state.arrayOperand( @1 );
 };
 
 guard : TOKEN_PREDICATE_IDENTIFIER
 {
-	state.guard( $<text>1, @1, false );
+	// state.guard( $<text>1, @1, false );
 };
 
 guard : TOKEN_INV_PREDICATE_IDENTIFIER
 {
-	state.guard( $<text>1, @1, true );
+	// state.guard( $<text>1, @1, true );
 };
 
 guard : /* empty string */
 {
-	state.guard();
+	// state.guard();
 }
 
 floatRoundingToken : TOKEN_RN  | TOKEN_RM  | TOKEN_RP  | TOKEN_RZ;
@@ -839,12 +839,12 @@ intRoundingToken   : TOKEN_RNI | TOKEN_RMI | TOKEN_RPI | TOKEN_RZI;
 
 floatRounding : floatRoundingToken
 {
-	state.modifier( $<value>1 );
+	// state.modifier( $<value>1 );
 };
 
 intRounding : intRoundingToken
 {
-	state.modifier( $<value>1 );
+	// state.modifier( $<value>1 );
 };
 
 optionalFloatRounding : floatRounding | /* empty string */;
@@ -863,7 +863,7 @@ basicInstruction3Opcode : OPCODE_AND | OPCODE_OR
 basicInstruction3 : basicInstruction3Opcode dataType operand ',' operand ',' 
 	operand ';'
 {
-	state.instruction( $<text>1, $<value>2 );
+	// state.instruction( $<text>1, $<value>2 );
 };
 
 approxInstruction2Opcode : OPCODE_RSQRT | OPCODE_SIN | OPCODE_COS | OPCODE_LG2 
@@ -871,25 +871,25 @@ approxInstruction2Opcode : OPCODE_RSQRT | OPCODE_SIN | OPCODE_COS | OPCODE_LG2
 
 approximate : TOKEN_APPROX
 {
-	state.modifier( $<value>1 );
+	// state.modifier( $<value>1 );
 };
 
 approxInstruction2 : approxInstruction2Opcode approximate optionalFtz dataType 
 	operand ',' operand ';'
 {
-	state.instruction( $<text>1, $<value>4 );
+	// state.instruction( $<text>1, $<value>4 );
 };
 
 ftz : TOKEN_FTZ
 {
-	state.modifier( $<value>1 );
+	// state.modifier( $<value>1 );
 };
 
 optionalFtz : ftz | /* empty string */;
 
 sat : TOKEN_SAT
 {
-	state.modifier( $<value>1 );
+	// state.modifier( $<value>1 );
 };
 
 optionalSaturate : sat | /* empty string */;
@@ -899,7 +899,7 @@ ftzInstruction2Opcode : OPCODE_ABS | OPCODE_NEG;
 ftzInstruction2 : ftzInstruction2Opcode optionalFtz dataType operand ',' 
 	operand ';'
 {
-	state.instruction( $<text>1, $<value>3 );
+	// state.instruction( $<text>1, $<value>3 );
 };
 
 ftzInstruction3Opcode : OPCODE_MAX | OPCODE_MIN;
@@ -907,27 +907,27 @@ ftzInstruction3Opcode : OPCODE_MAX | OPCODE_MIN;
 ftzInstruction3 : ftzInstruction3Opcode optionalFtz dataType operand ',' 
 	operand ',' operand ';'
 {
-	state.instruction( $<text>1, $<value>3 );
+	// state.instruction( $<text>1, $<value>3 );
 };
 
 optionalUni : /* empty string */
 {
-	state.uni( false );
+	// state.uni( false );
 };
 
 optionalUni : TOKEN_UNI
 {
-	state.uni( true );
+	// state.uni( true );
 };
 
 branch : OPCODE_BRA optionalUni branchOperand ';'
 {
-	state.instruction( $<text>1 );
+	// state.instruction( $<text>1 );
 };
 
 returnOperand : callOperand
 {
-	state.returnOperand();
+	// state.returnOperand();
 };
 
 returnOperandList : returnOperand;
@@ -940,17 +940,17 @@ callArgumentList : callArgumentList ',' callOperand;
 
 optionalPrototypeName : ',' '(' callArgumentList ')' ',' identifier
 {
-	state.callPrototypeName( $<text>6 );
+	// state.callPrototypeName( $<text>6 );
 };
 
 optionalPrototypeName : ',' '(' ')' ',' identifier
 {
-	state.callPrototypeName( $<text>5 );
+	// state.callPrototypeName( $<text>5 );
 };
 
 optionalPrototypeName : ',' identifier
 {
-	state.callPrototypeName( $<text>2 );
+	// state.callPrototypeName( $<text>2 );
 };
 
 optionalPrototypeName : ',' '(' callArgumentList ')'
@@ -958,12 +958,12 @@ optionalPrototypeName : ',' '(' callArgumentList ')'
 
 optionalUniOrTail : TOKEN_TAIL
 {
-	state.tail( true );
+	// state.tail( true );
 };
 
 optionalUniOrTail : optionalUni
 {
-	state.tail( false );
+	// state.tail( false );
 };
 
 branch : call;
@@ -971,27 +971,27 @@ branch : call;
 call : OPCODE_CALL optionalUniOrTail optionalReturnOperandList identifier 
 	optionalPrototypeName ';'
 {
-	state.call( $<text>4, @1 );
+	// state.call( $<text>4, @1 );
 };
 
 optionalCarry : TOKEN_CARRY
 {
-	state.carry( true );
+	// state.carry( true );
 };
 
 optionalCarry : /* empty string */
 {
-	state.carry( false );
+	// state.carry( false );
 };
 
 addModifier : TOKEN_CARRY
 {
-	state.carry( true );
+	// state.carry( true );
 };
 
 addModifier : optionalFloatRounding optionalFtz optionalSaturate
 {
-	state.carry( false );
+	// state.carry( false );
 };
 
 addOrSubOpcode : OPCODE_ADD | OPCODE_SUB;
@@ -999,7 +999,7 @@ addOrSubOpcode : OPCODE_ADD | OPCODE_SUB;
 addOrSub : addOrSubOpcode addModifier dataType operand ',' operand ',' 
 	operand ';'
 {
-	state.instruction( $<text>1, $<value>3 );
+	// state.instruction( $<text>1, $<value>3 );
 };
 
 addCOrSubCOpcode : OPCODE_ADDC | OPCODE_SUBC;
@@ -1009,8 +1009,8 @@ addCModifier : optionalCarry;
 addCOrSubC : addCOrSubCOpcode addCModifier dataType operand ',' operand 
 	',' operand ';'
 {
-	state.carryIn();
-	state.instruction( $<text>1, $<value>3 );
+	// state.carryIn();
+	// state.instruction( $<text>1, $<value>3 );
 };
 
 atomicOperationId : TOKEN_AND | TOKEN_OR | TOKEN_XOR | TOKEN_CAS | TOKEN_EXCH 
@@ -1018,57 +1018,57 @@ atomicOperationId : TOKEN_AND | TOKEN_OR | TOKEN_XOR | TOKEN_CAS | TOKEN_EXCH
 
 atomicOperation : atomicOperationId
 {
-	state.atomic( $<value>1 );
+	// state.atomic( $<value>1 );
 };
 
 atomModifier: addressSpace;
 atomModifier: /* empty string */
 {
-	state.addressSpace(TOKEN_GLOBAL);
+	// state.addressSpace(TOKEN_GLOBAL);
 }
 
 atom : OPCODE_ATOM atomModifier atomicOperation dataType operand ',' '[' 
 	memoryOperand ']' ',' operand ';'
 {
-	state.instruction( $<text>1, $<value>4 );
+	// state.instruction( $<text>1, $<value>4 );
 };
 
 atom : OPCODE_ATOM atomModifier atomicOperation dataType operand ',' '[' 
 	memoryOperand ']' ',' operand ',' operand ';'
 {
-	state.instruction( $<text>1, $<value>4 );
+	// state.instruction( $<text>1, $<value>4 );
 };
 
 shiftAmount : TOKEN_SHIFT_AMOUNT
 {
-	state.shiftAmount( true );
+	// state.shiftAmount( true );
 };
 
 shiftAmount : /* empty string */
 {
-	state.shiftAmount( false );
+	// state.shiftAmount( false );
 };
 
 bfe : OPCODE_BFE dataType operand ',' operand ',' operand 
 	',' operand ';'
 {
-	state.instruction( $<text>1, $<value>2 );
+	// state.instruction( $<text>1, $<value>2 );
 };
 
 bfi : OPCODE_BFI dataType operand ',' operand ',' operand 
 	',' operand ',' operand ';'
 {
-	state.instruction( $<text>1, $<value>2 );
+	// state.instruction( $<text>1, $<value>2 );
 };
 
 bfind : OPCODE_BFIND shiftAmount dataType operand ',' operand ';'
 {
-	state.instruction( $<text>1, $<value>3 );
+	// state.instruction( $<text>1, $<value>3 );
 };
 
 barrierOperation : TOKEN_ARRIVE | TOKEN_RED | TOKEN_SYNC
 {
-	state.barrierOperation( $<value>1, @1 );
+	// state.barrierOperation( $<value>1, @1 );
 };
 
 optionalBarrierOperator : reductionOperation dataType | /* or nothing */ ;
@@ -1077,32 +1077,32 @@ operandSequence: operand operandSequence | /* empty */ ;
 
 bar : OPCODE_BAR barrierOperation optionalBarrierOperator operandSequence ';'
 {
-	state.instruction( $<text>1 );
+	// state.instruction( $<text>1 );
 };
 
 brev : OPCODE_BREV dataType operand ',' operand ';'
 {
-	state.instruction( $<text>1, $<value>2 );
+	// state.instruction( $<text>1, $<value>2 );
 };
 
 brkpt : OPCODE_BRKPT ';'
 {
-	state.instruction( $<text>1 );
+	// state.instruction( $<text>1 );
 };
 
 clz : OPCODE_CLZ dataType operand ',' operand ';'
 {
-	state.instruction( $<text>1, $<value>2 );
+	// state.instruction( $<text>1, $<value>2 );
 };
 
 floatRoundingModifier : floatRounding
 {
-	state.modifier( $<value>1 );
+	// state.modifier( $<value>1 );
 };
 
 intRoundingModifier : intRounding
 {
-	state.modifier( $<value>1 );
+	// state.modifier( $<value>1 );
 };
 
 cvtRoundingModifier : intRoundingModifier | floatRoundingModifier;
@@ -1114,22 +1114,22 @@ cvtModifier : optionalFtz;
 
 cvt : OPCODE_CVT cvtModifier dataType dataType operand ',' operand ';'
 {
-	state.instruction( $<text>1, $<value>3 );
-	state.relaxedConvert( $<value>4, @1 );
+	// state.instruction( $<text>1, $<value>3 );
+	// state.relaxedConvert( $<value>4, @1 );
 };
 
 cvtaOperand : operand | offsetAddressableOperand;
 
 cvta : OPCODE_CVTA addressSpace pointerDataType operand ',' cvtaOperand ';'
 {
-	state.instruction( $<text>1, $<value>3 );
+	// state.instruction( $<text>1, $<value>3 );
 };
 
 cvta : OPCODE_CVTA TOKEN_TO addressSpace pointerDataType operand
 	',' cvtaOperand ';'
 {
-	state.instruction( $<text>1, $<value>4 );
-	state.cvtaTo();
+	// state.instruction( $<text>1, $<value>4 );
+	// state.cvtaTo();
 };
 
 /*
@@ -1138,17 +1138,17 @@ cvta : OPCODE_CVTA TOKEN_TO addressSpace pointerDataType operand
 
 divFullModifier : TOKEN_FULL optionalFtz
 {
-	state.full();
+	// state.full();
 }
 
 divApproxModifier : TOKEN_APPROX optionalFtz
 {
-	state.modifier($<value>1);
+	// state.modifier($<value>1);
 };
 
 divRnModifier : TOKEN_RN optionalFtz
 {
-	state.modifier($<value>1);
+	// state.modifier($<value>1);
 };
 
 divRnModifier : /* empty string */;
@@ -1158,29 +1158,29 @@ divModifier : divFullModifier | divApproxModifier
 
 div : OPCODE_DIV divModifier dataType operand ',' operand ',' operand ';'
 {
-	state.instruction( $<text>1, $<value>3 );
+	// state.instruction( $<text>1, $<value>3 );
 };
 
 exit : OPCODE_EXIT ';'
 {
-	state.instruction( $<text>1 );
+	// state.instruction( $<text>1 );
 };
 
 isspacep : OPCODE_ISSPACEP addressSpace operand ',' operand ';'
 {
-	state.instruction( $<text>1, TOKEN_U32 );
+	// state.instruction( $<text>1, TOKEN_U32 );
 }
 
 volatileModifier : TOKEN_VOLATILE
 {
-	state.volatileFlag( true );
+	// state.volatileFlag( true );
 };
 
 optionalVolatile : volatileModifier;
 
 optionalVolatile : /* empty string */
 {
-	state.volatileFlag( false );
+	// state.volatileFlag( false );
 };
 
 ldModifier : optionalVolatile optionalAddressSpace optionalCacheOperation
@@ -1188,12 +1188,12 @@ ldModifier : optionalVolatile optionalAddressSpace optionalCacheOperation
 
 ld : OPCODE_LD ldModifier dataType arrayOperand ',' '[' memoryOperand ']' ';'
 {
-	state.instruction( $<text>1, $<value>3 );
+	// state.instruction( $<text>1, $<value>3 );
 };
 
 ldu : OPCODE_LDU ldModifier dataType arrayOperand ',' '[' memoryOperand ']' ';'
 {
-	state.instruction( $<text>1, $<value>3 );
+	// state.instruction( $<text>1, $<value>3 );
 }
 
 hiOrLo : TOKEN_HI | TOKEN_LO;
@@ -1202,18 +1202,18 @@ roundHiLoWide : floatRounding | hiOrLo | TOKEN_WIDE;
 
 mulModifier : roundHiLoWide optionalFtz optionalSaturate
 {
-	state.modifier( $<value>1 );
-	state.carry( false );
+	// state.modifier( $<value>1 );
+	// state.carry( false );
 };
 
 mulModifier : hiOrLo TOKEN_CARRY
 {
-	state.carry( true );
+	// state.carry( true );
 };
 
 mulModifier : optionalFtz optionalSaturate
 {
-	state.carry( false );
+	// state.carry( false );
 };
 
 madOpcode : OPCODE_MAD | OPCODE_FMA;
@@ -1221,89 +1221,89 @@ madOpcode : OPCODE_MAD | OPCODE_FMA;
 mad : madOpcode mulModifier dataType operand ',' operand 
 	',' operand ',' operand ';'
 {
-	state.instruction( $<text>1, $<value>3 );
+	// state.instruction( $<text>1, $<value>3 );
 };
 
 mad24Modifier : optionalSaturate;
 
 mad24Modifier : hiOrLo optionalSaturate
 {
-	state.modifier( $<value>1 );
+	// state.modifier( $<value>1 );
 };
 
 mad24 : OPCODE_MAD24 mad24Modifier dataType operand ',' operand 
 	',' operand ',' operand ';'
 {
-	state.instruction( $<text>1, $<value>3 );
+	// state.instruction( $<text>1, $<value>3 );
 };
 
 madCModifier : hiOrLo optionalCarry
 {
-	state.modifier( $<value>1 );
+	// state.modifier( $<value>1 );
 };
 
 madc : OPCODE_MADC madCModifier dataType operand ',' operand 
 	',' operand ',' operand ';'
 {
-	state.instruction( $<text>1, $<value>3 );
+	// state.instruction( $<text>1, $<value>3 );
 };
 
 membarSpaceType : TOKEN_GL | TOKEN_CTA | TOKEN_SYS;
 
 membarSpace : membarSpaceType
 {
-	state.level( $<value>1 );
+	// state.level( $<value>1 );
 };
 
 membar : OPCODE_MEMBAR membarSpace ';'
 {
-	state.instruction( $<text>1 );
+	// state.instruction( $<text>1 );
 };
 
 movIndexedOperand : identifier '[' TOKEN_DECIMAL_CONSTANT ']'
 {
-	state.indexedOperand( $<text>1, @1, $<value>3 );
+	// state.indexedOperand( $<text>1, @1, $<value>3 );
 };
 
 movSourceOperand : arrayOperand | offsetAddressableOperand | movIndexedOperand;
 
 mov : OPCODE_MOV dataType arrayOperand ',' movSourceOperand ';'
 {
-	state.instruction( $<text>1, $<value>2 );
+	// state.instruction( $<text>1, $<value>2 );
 };
 
 mul24Modifier : /* empty string */;
 
 mul24Modifier : hiOrLo
 {
-	state.modifier( $<value>1 );
+	// state.modifier( $<value>1 );
 };
 
 mul24 : OPCODE_MUL24 mul24Modifier dataType operand ',' operand ',' operand ';'
 {
-	state.instruction( $<text>1, $<value>3 );
+	// state.instruction( $<text>1, $<value>3 );
 };
 
 mul : OPCODE_MUL mulModifier dataType operand ',' operand ',' operand ';'
 {
-	state.instruction( $<text>1, $<value>3 );
+	// state.instruction( $<text>1, $<value>3 );
 };
 
 notOpcode : OPCODE_CNOT | OPCODE_NOT;
 
 notInstruction : notOpcode dataType operand ',' operand ';'
 {
-	state.instruction( $<text>1, $<value>2 );
+	// state.instruction( $<text>1, $<value>2 );
 };
 
 pmevent : OPCODE_PMEVENT operand
 {
-	state.instruction( $<text>1 );
+	// state.instruction( $<text>1 );
 };
 
 popc : OPCODE_POPC dataType operand ',' operand ';'
 {
-	state.instruction( $<text>1, $<value>2 );
+	// state.instruction( $<text>1, $<value>2 );
 };
 
 permuteModeType : TOKEN_F4E | TOKEN_B4E | TOKEN_RC8 
@@ -1311,44 +1311,44 @@ permuteModeType : TOKEN_F4E | TOKEN_B4E | TOKEN_RC8
 
 permuteMode : permuteModeType
 {
-	state.permute( $<value>1 );
+	// state.permute( $<value>1 );
 };
 
 permuteMode : /* empty string */
 {
-	state.defaultPermute();
+	// state.defaultPermute();
 };
 
 cacheLevel : TOKEN_L1 | TOKEN_L2
 {
-	state.cacheLevel( $<value>1 );
+	// state.cacheLevel( $<value>1 );
 };
 
 prefetch : OPCODE_PREFETCH addressSpace cacheLevel '[' memoryOperand ']' ';'
 {
-	state.instruction( $<text>1 );
+	// state.instruction( $<text>1 );
 };
 
 prefetchu : OPCODE_PREFETCHU cacheLevel '[' memoryOperand ']' ';'
 {
-	state.instruction( $<text>1 );
+	// state.instruction( $<text>1 );
 };
 
 prmt : OPCODE_PRMT dataType permuteMode operand ',' operand 
 	',' operand ',' operand ';'
 {
-	state.instruction( $<text>1, $<value>2 );
+	// state.instruction( $<text>1, $<value>2 );
 };
 
 rcpSqrtModifier : TOKEN_APPROX optionalFtz
 {
-	state.modifier( $<value>1 );
+	// state.modifier( $<value>1 );
 };
 
 rcpSqrtModifier : /* empty string */;
 rcpSqrtModifier : TOKEN_RN optionalFtz
 {
-	state.modifier( $<value>1 );
+	// state.modifier( $<value>1 );
 };
 
 rcpSqrtOpcode : OPCODE_RCP | OPCODE_SQRT;
@@ -1356,7 +1356,7 @@ rcpSqrtOpcode : OPCODE_RCP | OPCODE_SQRT;
 rcpSqrtInstruction : rcpSqrtOpcode rcpSqrtModifier dataType operand ',' 
 	operand ';'
 {
-	state.instruction( $<text>1, $<value>3 );
+	// state.instruction( $<text>1, $<value>3 );
 };
 
 reductionOperationId : TOKEN_AND | TOKEN_XOR | TOKEN_OR | TOKEN_ADD | TOKEN_INC
@@ -1364,23 +1364,23 @@ reductionOperationId : TOKEN_AND | TOKEN_XOR | TOKEN_OR | TOKEN_ADD | TOKEN_INC
 	
 reductionOperation : reductionOperationId
 {
-	state.reduction( $<value>1 );
+	// state.reduction( $<value>1 );
 };
 
 red : OPCODE_RED addressSpace reductionOperation dataType operand ',' 
 	operand ';'
 {
-	state.instruction( $<text>1, $<value>4 );
+	// state.instruction( $<text>1, $<value>4 );
 };
 
 ret : OPCODE_RET optionalUni ';'
 {
-	state.instruction( $<text>1 );
+	// state.instruction( $<text>1 );
 };
 
 ret : OPCODE_RET optionalUni operand ';'
 {
-	state.instruction( $<text>1 );
+	// state.instruction( $<text>1 );
 };
 
 comparisonId : TOKEN_EQ | TOKEN_NE | TOKEN_LT | TOKEN_LE | TOKEN_GT | TOKEN_GE
@@ -1389,25 +1389,25 @@ comparisonId : TOKEN_EQ | TOKEN_NE | TOKEN_LT | TOKEN_LE | TOKEN_GT | TOKEN_GE
 
 comparison : comparisonId
 {
-	state.comparison( $<value>1 );
+	// state.comparison( $<value>1 );
 };
 
 boolOperatorId : TOKEN_AND | TOKEN_OR | TOKEN_XOR;
 
 boolOperator : boolOperatorId
 {
-	state.boolean( $<value>1 );
+	// state.boolean( $<value>1 );
 };
 
 sad : OPCODE_SAD dataType operand ',' operand ',' operand ',' operand ';'
 {
-	state.instruction( $<text>1, $<value>2 );
+	// state.instruction( $<text>1, $<value>2 );
 };
 
 selp : OPCODE_SELP dataType operand ',' operand ',' operand ',' operand ';'
 {
-	state.instruction( $<text>1, $<value>2 );
-	state.operandCIsAPredicate();
+	// state.instruction( $<text>1, $<value>2 );
+	// state.operandCIsAPredicate();
 };
 
 
@@ -1418,15 +1418,15 @@ setModifier : ftz comparison;
 set : OPCODE_SET setModifier dataType dataType operand ',' 
 	operand ',' operand ';'
 {
-	state.instruction( $<text>1, $<value>3 );
-	state.convert( $<value>4, @1 );
+	// state.instruction( $<text>1, $<value>3 );
+	// state.convert( $<value>4, @1 );
 };
 
 set : OPCODE_SET comparison boolOperator optionalFtz dataType dataType operand 
 	',' operand ',' operand ',' operand ';'
 {
-	state.instruction( $<text>1, $<value>5 );
-	state.convert( $<value>6, @1 );
+	// state.instruction( $<text>1, $<value>5 );
+	// state.convert( $<value>6, @1 );
 };
 
 /* multiple orderings of modifiers for OptiX support */
@@ -1438,44 +1438,44 @@ predicatePair : operand '|' operand | operand;
 setp : OPCODE_SETP setpModifier dataType predicatePair ',' operand ',' 
 	operand ';'
 {
-	state.instruction( $<text>1, $<value>3 );
+	// state.instruction( $<text>1, $<value>3 );
 };
 
 setp : OPCODE_SETP dataType setpModifier predicatePair ',' operand ',' 
 	operand ';'
 {
-	state.instruction( $<text>1, $<value>2 );
+	// state.instruction( $<text>1, $<value>2 );
 };
 
 setp : OPCODE_SETP comparison boolOperator optionalFtz dataType predicatePair 
 	',' operand ',' operand ',' operand ';'
 {
-	state.instruction( $<text>1, $<value>5 );
+	// state.instruction( $<text>1, $<value>5 );
 };
 
 shuffleModifierId : TOKEN_UP | TOKEN_DOWN | TOKEN_BFLY | TOKEN_IDX;
 
 shuffleModifier : shuffleModifierId
 {
-	state.shuffle( $<value>1 );
+	// state.shuffle( $<value>1 );
 };
 
 shfl : OPCODE_SHFL shuffleModifier dataType predicatePair ',' operand ','
 	operand ',' operand ';'
 {
-	state.instruction( $<text>1, $<value>3 );
+	// state.instruction( $<text>1, $<value>3 );
 };
 
 slct : OPCODE_SLCT optionalFtz dataType dataType operand ',' operand ',' 
 	operand ',' operand ';'
 {
-	state.instruction( $<text>1, $<value>3 );
-	state.convertC( $<value>4, @1 );
+	// state.instruction( $<text>1, $<value>3 );
+	// state.convertC( $<value>4, @1 );
 };
 
 st : OPCODE_ST ldModifier dataType '[' memoryOperand ']' ',' arrayOperand ';'
 {
-	state.instruction( $<text>1, $<value>3 );
+	// state.instruction( $<text>1, $<value>3 );
 };
 
 geometryId : TOKEN_1D | TOKEN_2D | TOKEN_3D | TOKEN_A1D | TOKEN_A2D |
@@ -1483,7 +1483,7 @@ geometryId : TOKEN_1D | TOKEN_2D | TOKEN_3D | TOKEN_A1D | TOKEN_A2D |
 
 geometry : geometryId
 {
-	state.geometry( $<value>1 );
+	// state.geometry( $<value>1 );
 };
 
 floatingPointModeType : TOKEN_FINITE | TOKEN_INFINITE | TOKEN_NUMBER 
@@ -1491,18 +1491,18 @@ floatingPointModeType : TOKEN_FINITE | TOKEN_INFINITE | TOKEN_NUMBER
 
 floatingPointMode : floatingPointModeType
 {
-	state.floatingPointMode( $<value>1 );
+	// state.floatingPointMode( $<value>1 );
 }; 
 
 testp : OPCODE_TESTP floatingPointMode dataType operand ',' operand ';'
 {
-	state.instruction( $<text>1, $<value>3 );
+	// state.instruction( $<text>1, $<value>3 );
 };
 
 tex : OPCODE_TEX geometry TOKEN_V4 dataType dataType arrayOperand ',' '[' 
 	operand ',' arrayOperand ']' ';'
 {
-	state.tex( $<value>5 );
+//	state.tex( $<value>5 );
 	state.convertD( $<value>4, @1 );
 };
 
@@ -1510,13 +1510,13 @@ colorComponentId : TOKEN_A | TOKEN_B | TOKEN_R | TOKEN_G;
 
 colorComponent : colorComponentId
 {
-	state.colorComponent( $<value>1 );
+// 	state.colorComponent( $<value>1 );
 };
 
 tld4 : OPCODE_TLD4 colorComponent TOKEN_2D TOKEN_V4 dataType dataType
 	arrayOperand ',' '[' operand ',' arrayOperand ']' ';'
 {
-	state.tld4( $<value>5 );
+	// state.tld4( $<value>5 );
 };
 
 //
@@ -1528,62 +1528,62 @@ surfaceQuery : TOKEN_WIDTH | TOKEN_HEIGHT | TOKEN_DEPTH
 	| TOKEN_FILTER_MODE | TOKEN_ADDR_MODE_0 | TOKEN_ADDR_MODE_1
 	| TOKEN_ADDR_MODE_2
 {
-	state.surfaceQuery( $<value>1 );
+	// state.surfaceQuery( $<value>1 );
 };
 
 txq : OPCODE_TXQ surfaceQuery dataType operand ',' '[' operand ']' ';'
 {
-	state.surfaceQuery( $<value>2 );
-	state.instruction( $<text>1, $<value>3 );
+	// state.surfaceQuery( $<value>2 );
+	// state.instruction( $<text>1, $<value>3 );
 };
 
 suq : OPCODE_SUQ surfaceQuery dataType operand ',' '[' operand ']' ';'
 {
-	state.instruction( $<text>1, $<value>3 );
-	state.surfaceQuery( $<value>2 );
+	// state.instruction( $<text>1, $<value>3 );
+	// state.surfaceQuery( $<value>2 );
 };
 
 cacheOperation : TOKEN_CA | TOKEN_CG | TOKEN_CS | TOKEN_CV | TOKEN_NC
 {
-	state.cacheOperation( $<value>1 );
+	// state.cacheOperation( $<value>1 );
 };
 
 optionalCacheOperation : cacheOperation | /* empty */;
 
 clampOperation : TOKEN_CLAMP | TOKEN_ZERO | TOKEN_TRAP
 {
-	state.clampOperation( $<value>1 );
+	// state.clampOperation( $<value>1 );
 };
 
 formatMode : TOKEN_B | TOKEN_P
 {
-	state.formatMode( $<value>1 );
+	// state.formatMode( $<value>1 );
 };
 
 suld : OPCODE_SULD formatMode geometry optionalCacheOperation 
 	instructionVectorType dataType clampOperation arrayOperand ',' 
 	'[' operand ',' arrayOperand ']' ';'
 {
-	state.instruction( $<text>1, $<value>6 );
-	state.formatMode( $<value>2 );
-	state.clampOperation( $<value>7 );
+	// state.instruction( $<text>1, $<value>6 );
+	// state.formatMode( $<value>2 );
+	// state.clampOperation( $<value>7 );
 };
 
 sust : OPCODE_SUST formatMode geometry optionalCacheOperation 
 	instructionVectorType dataType clampOperation '[' operand ','
 	arrayOperand ']' ',' arrayOperand ';'
 {
-	state.instruction( $<text>1, $<value>6 );
-	state.formatMode( $<value>2 );
-	state.clampOperation( $<value>7 );
+	// state.instruction( $<text>1, $<value>6 );
+	// state.formatMode( $<value>2 );
+	// state.clampOperation( $<value>7 );
 };
 
 sured : OPCODE_SURED formatMode reductionOperation geometry dataType
 	clampOperation '[' operand ',' arrayOperand ']' ',' arrayOperand ';'
 {
-	state.instruction( $<text>1, $<value>5 );
-	state.formatMode( $<value>2 );
-	state.clampOperation( $<value>6 );
+	// state.instruction( $<text>1, $<value>5 );
+	// state.formatMode( $<value>2 );
+	// state.clampOperation( $<value>6 );
 };
 
 //
@@ -1592,21 +1592,21 @@ sured : OPCODE_SURED formatMode reductionOperation geometry dataType
 
 trap : OPCODE_TRAP ';'
 {
-	state.instruction( $<text>1 );
+	// state.instruction( $<text>1 );
 };
 
 voteOperationId : TOKEN_ANY | TOKEN_ALL | TOKEN_UNI | TOKEN_BALLOT;
 
 voteOperation : voteOperationId
 {
-	state.vote( $<value>1 );
+	// state.vote( $<value>1 );
 };
 
 voteDataType : TOKEN_PRED | TOKEN_B32;
 
 vote : OPCODE_VOTE voteOperation voteDataType operand ',' operand ';'
 {
-	state.instruction( $<text>1, $<value>3 );
+	// state.instruction( $<text>1, $<value>3 );
 };
 
 %%

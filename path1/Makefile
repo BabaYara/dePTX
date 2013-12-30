@@ -6,8 +6,18 @@ ptxgrammar.cpp ptxgrammar.hpp: ptxgrammar.yy
 ptx.cpp: ptx.ll ptxgrammar.hpp
 	flex -t ptx.ll > ptx.cpp
 
-dePTX: ptx.cpp ptxgrammar.cpp
-	g++ dePTX.cpp $^ -lfl -o dePTX -L/opt/local/lib -I/opt/local/include
+%.o: %.cpp
+	g++ -c -O3 $< -o $@ -I/opt/local/include
+
+OBJ= PTXLexer.o \
+	   ptx.o \
+		 ptxgrammar.o \
+		 dePTX.o 
+
+dePTX: $(OBJ)
+	g++ $^ -lfl -o dePTX -L/opt/local/lib -I/opt/local/include
 
 clean: 
-	/bin/rm -f ptx.cpp ptxgrammar.cpp ptxgrammar.hpp dePTX
+	/bin/rm -f ptx.cpp ptxgrammar.cpp ptxgrammar.hpp dePTX $(OBJ)
+
+$(OBJ): ptx.cpp ptxgrammar.cpp ptxgrammar.hpp
