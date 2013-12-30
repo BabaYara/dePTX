@@ -58,8 +58,10 @@ void yyerror(const char *s);
 // the first rule defined is the highest-level rule, which in our
 // case is just the concept of a whole "snazzle file":
 ptxsource:
-  ENDLS version target address_size ENDLS { std:cerr << "Done reading PTX " << std::endl; }
+  header ptxbody
 
+header:
+  ENDLS version target address_size ENDLS { std:cerr << "Done reading PTX " << std::endl; }
 version:
   TOKEN_VERSION FLOAT ENDLS { std::cerr << "Reading PTX version " << $2  << std::endl; };
 target:
@@ -68,6 +70,10 @@ address_size:
   TOKEN_ADDRESS_SIZE INT { std::cerr << "Address_Size " << $2  << std::endl; };
 
 
+ptxfunction:
+  TOKEN_EXTERN | TOKEN_VISIBLE
+ 
+  
 
 ENDLS:
 	ENDLS ENDL

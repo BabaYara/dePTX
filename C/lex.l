@@ -20,32 +20,32 @@ ZO_SWIZZLE ([01]+[w-z]+)+|([01]+[rgba]+)+|([01]+[uv]+)+
 %%
 "//"            { line_num++; lCppComment(&yylloc); }
 [ \t]          ;
-\.version       { return TOKEN_VERSION; }
-\.target        { return TOKEN_TARGET; }
-\.address_size  { return TOKEN_ADDRESS_SIZE; }
-\.extern        { return TOKEN_EXTERN;}
-\.func          { return TOKEN_FUNC; }
-\.entry         { return TOKEN_ENTRY; }
-\.global        { return TOKEN_GLOBAL; }
-\.align         { return TOKEN_ALIGN; }
-\.visible       { return TOKEN_VISIBLE; }
-\.param         { return TOKEN_PARAM; }
-\.reg           { return TOKEN_REG; }
-\.b8            { return TOKEN_B8;}
-\.b16           { return TOKEN_B16;}
-\.b32           { return TOKEN_B32;}
-\.b64           { return TOKEN_B64;}
-\.u8            { return TOKEN_U8;}
-\.u16           { return TOKEN_U16;}
-\.u32           { return TOKEN_U32;}
-\.u64           { return TOKEN_U64;}
-\.s8            { return TOKEN_S8;}
-\.s16           { return TOKEN_S16;}
-\.s32           { return TOKEN_S32;}
-\.s64           { return TOKEN_S64;}
-\.f32           { return TOKEN_F32;}
-\.f64           { return TOKEN_F64;}
-\.pred          { return TOKEN_PRED;}
+".version"      { return TOKEN_VERSION; }
+".target"       { return TOKEN_TARGET; }
+".address_size" { return TOKEN_ADDRESS_SIZE; }
+".extern"       { return TOKEN_EXTERN;}
+".func"         { return TOKEN_FUNC; }
+".entry"        { return TOKEN_ENTRY; }
+".global"       { return TOKEN_GLOBAL; }
+".align"        { return TOKEN_ALIGN; }
+".visible"      { return TOKEN_VISIBLE; }
+".param"        { return TOKEN_PARAM; }
+".reg"          { return TOKEN_REG; }
+".b8"           { return TOKEN_B8;}
+".b16"          { return TOKEN_B16;}
+".b32"          { return TOKEN_B32;}
+".b64"          { return TOKEN_B64;}
+".u8"           { return TOKEN_U8;}
+".u16"          { return TOKEN_U16;}
+".u32"          { return TOKEN_U32;}
+".u64"          { return TOKEN_U64;}
+".s8"           { return TOKEN_S8;}
+".s16"          { return TOKEN_S16;}
+".s32"          { return TOKEN_S32;}
+".s64"          { return TOKEN_S64;}
+".f32"          { return TOKEN_F32;}
+".f64"          { return TOKEN_F64;}
+".pred"         { return TOKEN_PRED;}
 "<"             { return '<';}
 ">"             { return '>';}
 "%"             { return '%';}
