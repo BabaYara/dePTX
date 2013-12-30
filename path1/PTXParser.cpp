@@ -50,7 +50,7 @@ namespace parser
   }
   void PTXParser::functionName( const std::string& name, YYLTYPE& location )
   {
-    out << "__function " << name.c_str();
+    out << "_function " << name.c_str();
   }
   void PTXParser::functionDeclaration( YYLTYPE& location, bool body )
   {
@@ -79,7 +79,7 @@ namespace parser
 
   void PTXParser::entry( const std::string& name, YYLTYPE& location )
   {
-    out << "__kernel " << name.c_str();
+    out << "_kernel " << name.c_str();
   }
   void PTXParser::entryDeclaration( YYLTYPE& location ) 
   {
