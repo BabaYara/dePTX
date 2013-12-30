@@ -156,15 +156,22 @@ namespace parser
         bool isArgumentList;
         bool isReturnArgumentList;
         bool isInitializableDeclaration;
+        bool isEntry;
         std::vector<double> doubleList;
         std::vector<unsigned long long> decimalList;
         unsigned long long nValuesInitializer;
-        int tokenDataType;
+        typedef long long int token_t;
+        token_t tokenDataType;
 
         enum attribute_t { VISIBLE, EXTERN, WEAK, NONE};
         enum locationAddress_t { PARAM, REG, LOCAL, SHARED, CONST, GLOBAL};
-        attribute_t stmt_attribute;
+        attribute_t stmt_attribute, functionAttribute;
         locationAddress_t stmt_locationAddress;
+        std::string calleeName;
+
+
+        typedef std::pair<token_t, std::string> argument_t;
+        std::vector<argument_t> argumentList,returnArgumentList;
 
       /*************/
       public:

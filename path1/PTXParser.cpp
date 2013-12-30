@@ -18,6 +18,7 @@ namespace parser
     isArgumentList        = false;
     isReturnArgumentList  = false;
     isInitializableDeclaration = false;
+    isEntry = false;
 
     stmt_attribute = static_cast<attribute_t>(-1);
     stmt_locationAddress = static_cast<locationAddress_t>(-1);
@@ -28,32 +29,54 @@ namespace parser
   };
   void PTXParser::argumentDeclaration( const std::string& name, YYLTYPE& location )
   {
-    out << " " << name.c_str();
+    if (isReturnArgumentList)
+      returnArgumentList.push_back(std::make_pair(tokenDataType, name));
     if (isArgumentList)
-      out  << std::endl;
+      argumentList.push_back(std::make_pair(tokenDataType, name));
   }
   void PTXParser::argumentListBegin( YYLTYPE& location ) 
   {
     isArgumentList = true;
-    out << "(\n";
   }
   void PTXParser::argumentListEnd( YYLTYPE& location )
   {
     isArgumentList = false;
-    out << ");\n";
   }
 
   /********** FUNC *********/
   
   void PTXParser::functionBegin( YYLTYPE& location )
   {
+    functionAttribute = stmt_attribute;
   }
   void PTXParser::functionName( const std::string& name, YYLTYPE& location )
   {
-    out << "_function " << name.c_str();
+    calleeName = name;
   }
   void PTXParser::functionDeclaration( YYLTYPE& location, bool body )
   {
+    assert(!isEntry);
+    assert(returnArgumentList.size() <=1);
+    out  
+      << attributeString(functionAttribute);
+    out << "__device__ ";
+    if (returnArgumentList.empty())
+      out << "void ";
+    else
+      out << tokenToDataType(returnArgumentList[0].first);
+    out << calleeName << " (\n " 
+      << tokenToDataType(argumentList[0].first)
+      << argumentList[0].second << " ";
+    const int narg = argumentList.size();
+    for (int i = 0; i < narg; i++)
+      out << ",\n " << tokenToDataType(argumentList[0].first)
+      << argumentList[i].second;
+    out << "\n); \n";
+
+
+    isEntry = false;
+    returnArgumentList.clear();
+    argumentList.clear();
   }
 
   void PTXParser::openBrace( YYLTYPE& location )
@@ -67,22 +90,41 @@ namespace parser
   void PTXParser::returnArgumentListBegin( YYLTYPE& location )
   {
     isReturnArgumentList = true;
-    out << "( ";
   }
   void PTXParser::returnArgumentListEnd( YYLTYPE& location )
   {
     isReturnArgumentList = false;
-    out << " ) ";
   }
 
   /********** ENTRY *********/
 
   void PTXParser::entry( const std::string& name, YYLTYPE& location )
   {
-    out << "_kernel " << name.c_str();
+    isEntry = true;
+    calleeName = name;
   }
   void PTXParser::entryDeclaration( YYLTYPE& location ) 
   {
+    assert(isEntry);
+    assert(returnArgumentList.size() <=1);
+    out  
+      << attributeString(functionAttribute);
+    out << "__global ";
+    assert (returnArgumentList.empty());
+    out << "void ";
+    out << calleeName << " (\n " 
+      << tokenToDataType(argumentList[0].first)
+      << argumentList[0].second << " ";
+    const int narg = argumentList.size();
+    for (int i = 0; i < narg; i++)
+      out << ",\n " << tokenToDataType(argumentList[0].first)
+      << argumentList[i].second;
+    out << "\n); \n";
+
+
+    isEntry = false;
+    returnArgumentList.clear();
+    argumentList.clear();
   }
   void PTXParser::entryPrototype( YYLTYPE& location )
   {
@@ -96,21 +138,32 @@ namespace parser
 
   void PTXParser::attribute( bool visible, bool external, bool weak )
   {
+    assert( visible + external + weak < 2 );
     if (visible)
+    {
+//      out << "visible\n";
       stmt_attribute = VISIBLE;
+    }
     else if (external)
+    {
+//      out << "extern\n";
       stmt_attribute = EXTERN;
+    }
     else if (weak)
+    {
+//      out << "weak\n";
       stmt_attribute = WEAK;
+    }
     else
+    {
+ //     out << "none\n";
       stmt_attribute = NONE;
+    }
   }
 
   void PTXParser::dataType( int token )
   {
     tokenDataType = token;
-    if (isArgumentList || isReturnArgumentList)
-      out << " " << tokenToDataType(token).c_str() << " ";
   }
   void PTXParser::addressSpace( int token )
   {
@@ -150,6 +203,7 @@ namespace parser
     assert(decimalList.size() == nValuesInitializer);
     decimalList.clear();
   }
+
 
   void PTXParser::assignment()
   {
@@ -211,7 +265,8 @@ namespace parser
       case VISIBLE: return " ";
       case EXTERN:  return "_extern "; 
       case WEAK:    return "_weak ";
-      default:      return "_static ";
+      case NONE:    return "_static ";
+      default:      assert(0);
     };
   }
   std::string PTXParser::locationAddressString(locationAddress_t addr)

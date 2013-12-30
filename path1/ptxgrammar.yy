@@ -552,7 +552,7 @@ optionalArgumentList : /* empty string */;
 
 entryDeclaration : entryName optionalArgumentList performanceDirectives
 {
-	// state.entryDeclaration( @1 );
+  state.entryDeclaration( @1 );
 };
 
 entry : entryDeclaration openBrace entryStatements closeBrace;
@@ -655,7 +655,7 @@ externOrVisible : TOKEN_VISIBLE
 
 externOrVisible : /* empty string */
 {
-	// state.attribute( false, false, false );
+   state.attribute( false, false, false );
 };
 
 uninitializableAddress : TOKEN_LOCAL | TOKEN_SHARED | TOKEN_PARAM;
