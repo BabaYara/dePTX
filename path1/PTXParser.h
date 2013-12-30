@@ -31,7 +31,7 @@ namespace parser
     std::ostream &out;
     public:
       unsigned int alignment;
-      PTXParser(std::ostream &_out) : out(_out) {};
+      PTXParser(std::ostream &_out); 
 
     public:
       void addSpecialRegisters();
@@ -62,7 +62,6 @@ namespace parser
       void target();
       void noAddressSpace();
       void addressSpace( int token );
-      void dataType( int token );
       void statementVectorType( int token );
       void instructionVectorType( int token );
       void attribute( bool visible, bool external, bool weak );
@@ -165,6 +164,11 @@ namespace parser
           YYLTYPE& location );
 
       /*************/
+      private:
+        bool isArgumentList;
+        bool isReturnArgumentList;
+
+      /*************/
       public:
         void version( double version, YYLTYPE& location );
         void argumentDeclaration( const std::string& name, YYLTYPE& location );
@@ -186,7 +190,9 @@ namespace parser
         void returnArgumentListBegin( YYLTYPE& location );
         void returnArgumentListEnd( YYLTYPE& location );
 
+        void dataType( int token );
 
+        std::string tokenToDataType( int token );
   };
 
 }

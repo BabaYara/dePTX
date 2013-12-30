@@ -310,7 +310,7 @@ dataTypeId : TOKEN_U8 | TOKEN_U16 | TOKEN_U32 | TOKEN_U64 | TOKEN_S8
 dataType : dataTypeId
 {
 //  return $<value>1;
-	// state.dataType( $<value>1 );
+   state.dataType( $<value>1 );
 };
 
 pointerDataType : pointerDataTypeId
@@ -498,12 +498,12 @@ argumentListEnd : ')'
 
 openBrace : '{'
 {
-	// state.openBrace( @1 );
+	state.openBrace( @1 );
 };
 
 closeBrace : '}' optionalMetadata
 {
-	// state.closeBrace( @1 );
+  state.closeBrace( @1 );
 };
 
 argumentListBody : argumentDeclaration;

@@ -9,23 +9,33 @@
 
 // Ocelot Includes
 #include "PTXParser.h"
+#include <cassert>
 
 namespace parser
 {
+  PTXParser::PTXParser(std::ostream &_out) : out(_out)
+  {
+    isArgumentList        = false;
+    isReturnArgumentList  = false;
+  }
   void PTXParser::version( double version, YYLTYPE& location )
   {
     out << "_PTX_Version(" << version << ")" << std::endl;
   };
   void PTXParser::argumentDeclaration( const std::string& name, YYLTYPE& location )
   {
-    out << "\t" << name.c_str() << std::endl;
+    out << " " << name.c_str();
+    if (isArgumentList)
+      out  << std::endl;
   }
   void PTXParser::argumentListBegin( YYLTYPE& location ) 
   {
+    isArgumentList = true;
     out << "(\n";
   }
   void PTXParser::argumentListEnd( YYLTYPE& location )
   {
+    isArgumentList = false;
     out << ");\n";
   }
 
@@ -44,19 +54,21 @@ namespace parser
 
   void PTXParser::openBrace( YYLTYPE& location )
   {
-    out << "{\n";
+//    out << "{";
   }
   void PTXParser::closeBrace( YYLTYPE& location )
   {
-    out << ");\n";
+ //   out << "};\n";
   }
   void PTXParser::returnArgumentListBegin( YYLTYPE& location )
   {
-    out << "((\n";
+    isReturnArgumentList = true;
+    out << "( ";
   }
   void PTXParser::returnArgumentListEnd( YYLTYPE& location )
   {
-    out << "))\n";
+    isReturnArgumentList = false;
+    out << " ) ";
   }
 
   /********** ENTRY *********/
@@ -86,6 +98,38 @@ namespace parser
       out << "__extern ";
     else if (weak)
       out << "__weak ";
+  }
+
+  void PTXParser::dataType( int token )
+  {
+    if (isArgumentList || isReturnArgumentList)
+      std::cerr << " " << tokenToDataType(token).c_str() << " ";
+  }
+
+  std::string PTXParser::tokenToDataType( int token )
+  {
+    switch( token )
+    {
+      case TOKEN_U8:   return "_u8"; break;
+      case TOKEN_U16:  return "_u16"; break;
+      case TOKEN_U32:  return "_u32"; break;
+      case TOKEN_U64:  return "_u64"; break;
+      case TOKEN_S8:   return "_s8"; break;
+      case TOKEN_S16:  return "_s16"; break;
+      case TOKEN_S32:  return "_s32"; break;
+      case TOKEN_S64:  return "_s64"; break;
+      case TOKEN_B8:   return "_b8"; break;
+      case TOKEN_B16:  return "_b16"; break;
+      case TOKEN_B32:  return "_b32"; break;
+      case TOKEN_B64:  return "_b64"; break;
+      case TOKEN_PRED: return "_pred"; break;
+      case TOKEN_F16:  return "_f16"; break;
+      case TOKEN_F32:  return "_f32"; break;
+      case TOKEN_F64:  return "_f64"; break;
+      default: assert(0);
+    }
+
+    return "";
   }
 }
 
