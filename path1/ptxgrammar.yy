@@ -423,8 +423,8 @@ fileDeclaration : TOKEN_FILE TOKEN_DECIMAL_CONSTANT TOKEN_STRING
 globalSharedDeclaration : externOrVisible TOKEN_SHARED 
 	addressableVariablePrefix identifier arrayDimensions ';'
 {
-	// state.locationAddress( $<value>2 );
-	// state.initializableDeclaration( $<text>4, @4, @6 );
+   state.locationAddress( $<value>2 );
+   state.initializableDeclaration( $<text>4, @4, @6 );
 };
 
 initializableDeclaration : initializable addressableVariablePrefix 
@@ -437,8 +437,8 @@ initializableDeclaration : initializable addressableVariablePrefix
 globalLocalDeclaration:  externOrVisible TOKEN_LOCAL 
 	addressableVariablePrefix identifier arrayDimensions ';'
 {
-	// state.locationAddress( $<value>2 );
-	// state.initializableDeclaration( $<text>4, @4, @6 );
+   state.locationAddress( $<value>2 );
+   state.initializableDeclaration( $<text>4, @4, @6 );
 }
 
 textureSpace : TOKEN_PARAM | TOKEN_GLOBAL;
@@ -460,12 +460,12 @@ surfaceDeclaration : externOrVisible textureSpace TOKEN_SURFREF identifier ';'
 
 parameter : TOKEN_PARAM
 {
-	// state.locationAddress( $<value>1 );
+ state.locationAddress( $<value>1 );
 };
 
 parameter : TOKEN_REG
 {
-	// state.locationAddress( $<value>1 );
+   state.locationAddress( $<value>1 );
 };
 
 argumentDeclaration : parameter addressableVariablePrefix identifier 
@@ -663,12 +663,12 @@ initializableAddress : TOKEN_CONST | TOKEN_GLOBAL;
 
 uninitializable : externOrVisible uninitializableAddress
 {
-	// state.locationAddress( $<value>2 );
+   state.locationAddress( $<value>2 );
 };
 
 initializable : externOrVisible initializableAddress
 {
-	// state.locationAddress( $<value>2 );
+   state.locationAddress( $<value>2 );
 };
 
 opcode : OPCODE_COS | OPCODE_SQRT | OPCODE_ADD | OPCODE_RSQRT | OPCODE_ADDC

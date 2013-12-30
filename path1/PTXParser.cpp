@@ -18,6 +18,9 @@ namespace parser
     isArgumentList        = false;
     isReturnArgumentList  = false;
     isInitializableDeclaration = false;
+
+    stmt_attribute = static_cast<attribute_t>(-1);
+    stmt_locationAddress = static_cast<locationAddress_t>(-1);
   }
   void PTXParser::version( double version, YYLTYPE& location )
   {
@@ -114,15 +117,29 @@ namespace parser
   }
   void PTXParser::locationAddress( int token )
   {
+    switch (token)
+    {
+      case TOKEN_PARAM:  stmt_locationAddress = PARAM;   break;
+      case TOKEN_REG:    stmt_locationAddress = REG;     break;
+      case TOKEN_LOCAL:  stmt_locationAddress = LOCAL;   break;
+      case TOKEN_SHARED: stmt_locationAddress = SHARED;  break;
+      case TOKEN_GLOBAL: stmt_locationAddress = GLOBAL;  break;
+      case TOKEN_CONST:  stmt_locationAddress = CONST;   break;
+      default:
+           assert(0);
+
+    }
   }
   void PTXParser::uninitializableDeclaration( const std::string& name )
   {
   }
+
   void PTXParser::initializableDeclaration( const std::string& name,  YYLTYPE& one, YYLTYPE& two )
   {
     out 
+      << locationAddressString(stmt_locationAddress)
       << attributeString(stmt_attribute) 
-      << tokenToDataType(tokenDataType)  << " "
+      << tokenToDataType(tokenDataType)  
       <<  name.c_str() 
       << "[" << nValuesInitializer << "]= { " << decimalList[0];
     int n = decimalList.size();
@@ -165,22 +182,22 @@ namespace parser
   {
     switch( token )
     {
-      case TOKEN_U8:   return "_u8"; break;
-      case TOKEN_U16:  return "_u16"; break;
-      case TOKEN_U32:  return "_u32"; break;
-      case TOKEN_U64:  return "_u64"; break;
-      case TOKEN_S8:   return "_s8"; break;
-      case TOKEN_S16:  return "_s16"; break;
-      case TOKEN_S32:  return "_s32"; break;
-      case TOKEN_S64:  return "_s64"; break;
-      case TOKEN_B8:   return "_b8"; break;
-      case TOKEN_B16:  return "_b16"; break;
-      case TOKEN_B32:  return "_b32"; break;
-      case TOKEN_B64:  return "_b64"; break;
-      case TOKEN_PRED: return "_pred"; break;
-      case TOKEN_F16:  return "_f16"; break;
-      case TOKEN_F32:  return "_f32"; break;
-      case TOKEN_F64:  return "_f64"; break;
+      case TOKEN_U8:   return "_u8 "; break;
+      case TOKEN_U16:  return "_u16 "; break;
+      case TOKEN_U32:  return "_u32 "; break;
+      case TOKEN_U64:  return "_u64 "; break;
+      case TOKEN_S8:   return "_s8 "; break;
+      case TOKEN_S16:  return "_s16 "; break;
+      case TOKEN_S32:  return "_s32 "; break;
+      case TOKEN_S64:  return "_s64 "; break;
+      case TOKEN_B8:   return "_b8 "; break;
+      case TOKEN_B16:  return "_b16 "; break;
+      case TOKEN_B32:  return "_b32 "; break;
+      case TOKEN_B64:  return "_b64 "; break;
+      case TOKEN_PRED: return "_pred "; break;
+      case TOKEN_F16:  return "_f16 "; break;
+      case TOKEN_F32:  return "_f32 "; break;
+      case TOKEN_F64:  return "_f64 "; break;
       default: assert(0);
     }
 
@@ -192,10 +209,25 @@ namespace parser
     switch (attr)
     {
       case VISIBLE: return " ";
-      case EXTERN:  return " .extern "; 
-      case WEAK:    return " .weak ";
-      default:      return " .static ";
+      case EXTERN:  return "_extern "; 
+      case WEAK:    return "_weak ";
+      default:      return "_static ";
     };
+  }
+  std::string PTXParser::locationAddressString(locationAddress_t addr)
+  {
+    switch (addr)
+    {
+      case PARAM:  return "_param ";
+      case REG:    return "_reg ";
+      case LOCAL:  return "_local ";
+      case SHARED: return "_shared ";
+      case GLOBAL: return "_global ";
+      case CONST:  return "_const ";
+      default:
+           assert(0);
+      return  " ";
+    }
   }
 
 }

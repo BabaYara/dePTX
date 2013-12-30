@@ -162,7 +162,9 @@ namespace parser
         int tokenDataType;
 
         enum attribute_t { VISIBLE, EXTERN, WEAK, NONE};
+        enum locationAddress_t { PARAM, REG, LOCAL, SHARED, CONST, GLOBAL};
         attribute_t stmt_attribute;
+        locationAddress_t stmt_locationAddress;
 
       /*************/
       public:
@@ -202,6 +204,7 @@ namespace parser
 
         std::string tokenToDataType( int token );
         std::string attributeString(attribute_t attr);
+        std::string locationAddressString(locationAddress_t addr);
   };
 
 }
