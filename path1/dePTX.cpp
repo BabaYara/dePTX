@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <iostream>
 #include <fstream>
+#include <cassert>
 #include "PTXParser.h"
 
 namespace ptx
@@ -18,7 +19,10 @@ int main() {
 	// parse through the input until there is no more:
   //
 
-  ptx::yyparse(lexer, state);
+  do {
+    ptx::yyparse(lexer, state);
+  }
+  while (!input.eof());
 
 #if 0
 	do {
