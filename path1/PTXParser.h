@@ -50,8 +50,6 @@ namespace parser
       void addressSize( unsigned int size );
       void identifierList( const std::string& identifier );
       void identifierList2( const std::string& identifier );
-      void decimalListSingle( long long int value );
-      void decimalListSingle2( long long int value );
       void symbolListSingle( const std::string& identifier );
       void symbolListSingle2( const std::string& identifier );
       void floatList( double value );
@@ -67,18 +65,11 @@ namespace parser
       void shiftAmount( bool shift );
       void vectorIndex( int token );
 
-      void arrayDimensionSet( long long int value, 
-          YYLTYPE& location, bool add );
-      void arrayDimensionSet();
-      void arrayDimensions();
-      void assignment();
       void registerDeclaration( const std::string& name, 
           YYLTYPE& location, unsigned int regs = 0 );
       void registerSeperator( YYLTYPE& location );
       void fileDeclaration( unsigned int id, 
           const std::string& name );
-      void initializableDeclaration( const std::string& name, 
-          YYLTYPE& one, YYLTYPE& two );
       void textureDeclaration( int token,const std::string& name, 
           YYLTYPE& location );
       void surfaceDeclaration( int token, 
@@ -89,8 +80,6 @@ namespace parser
 
 
 
-      void locationAddress( int token );
-      void uninitializableDeclaration( const std::string& name );
       void location( long long int one, long long int two, 
           long long int three );
       void label( const std::string& string );
@@ -166,6 +155,11 @@ namespace parser
       private:
         bool isArgumentList;
         bool isReturnArgumentList;
+        bool isInitializableDeclaration;
+        std::vector<double> doubleList;
+        std::vector<unsigned long long> decimalList;
+        unsigned long long nValuesInitializer;
+        int tokenDataType;
 
       /*************/
       public:
@@ -191,6 +185,17 @@ namespace parser
 
         void dataType( int token );
         void addressSpace( int token );
+        void locationAddress( int token );
+        void uninitializableDeclaration( const std::string& name );
+        void initializableDeclaration( const std::string& name,  YYLTYPE& one, YYLTYPE& two );
+
+        void arrayDimensionSet( long long int value, YYLTYPE& location, bool add );
+        void arrayDimensionSet();
+        void arrayDimensions();
+        void assignment();
+      
+        void decimalListSingle( long long int value );
+        void decimalListSingle2( long long int value );
 
         std::string tokenToDataType( int token );
   };

@@ -203,7 +203,7 @@ decimalListSingle : decimalListSingle ',' identifier
 
 decimalListSingle : TOKEN_DECIMAL_CONSTANT
 {
-	// state.decimalListSingle( $<value>1 );
+   state.decimalListSingle( $<value>1 );
 };
 
 optionalMetadata : /* empty string */
@@ -218,7 +218,7 @@ optionalMetadata : TOKEN_METADATA
 
 decimalListSingle : decimalListSingle ',' TOKEN_DECIMAL_CONSTANT
 {
-	// state.decimalListSingle2( $<value>3 );
+   state.decimalListSingle2( $<value>3 );
 };
 
 decimalList : '{' decimalList '}' ',' '{' decimalList '}';
@@ -355,22 +355,22 @@ addressableVariablePrefix : dataType parameterAttribute alignment;
 
 arrayDimensionSet : '[' TOKEN_DECIMAL_CONSTANT ']'
 {
-	// state.arrayDimensionSet( $<value>2, @2, false );
+   state.arrayDimensionSet( $<value>2, @2, false );
 };
 
 arrayDimensionSet : arrayDimensionSet '[' TOKEN_DECIMAL_CONSTANT ']'
 {
-	// state.arrayDimensionSet( $<value>3, @3, true );
+   state.arrayDimensionSet( $<value>3, @3, true );
 };
 
 arrayDimensionSet : '[' ']'
 {
-	// state.arrayDimensionSet( );
+   state.arrayDimensionSet( );
 };
 
 arrayDimensions : /* empty string */
 {
-	// state.arrayDimensions();
+  state.arrayDimensions();
 };
 
 arrayDimensions : arrayDimensionSet;
@@ -379,7 +379,7 @@ initializer : /* empty string */;
 
 assignment : '='
 {
-	// state.assignment();
+   state.assignment();
 };
 
 initializer : assignment decimalInitializer | assignment floatInitializer 
@@ -430,8 +430,7 @@ globalSharedDeclaration : externOrVisible TOKEN_SHARED
 initializableDeclaration : initializable addressableVariablePrefix 
 	identifier arrayDimensions initializer ';'
 {
-  std::cerr << " --- " << $<text>3 << std::endl;  
-	// state.initializableDeclaration( $<text>3, @3, @5 );
+   state.initializableDeclaration( $<text>3, @3, @5 );
 	// state.statementEnd( @3 );
 };
 

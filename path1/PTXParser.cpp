@@ -17,6 +17,7 @@ namespace parser
   {
     isArgumentList        = false;
     isReturnArgumentList  = false;
+    isInitializableDeclaration = false;
   }
   void PTXParser::version( double version, YYLTYPE& location )
   {
@@ -102,13 +103,58 @@ namespace parser
 
   void PTXParser::dataType( int token )
   {
+    tokenDataType = token;
     if (isArgumentList || isReturnArgumentList)
       out << " " << tokenToDataType(token).c_str() << " ";
   }
   void PTXParser::addressSpace( int token )
   {
   }
+  void PTXParser::locationAddress( int token )
+  {
+  }
+  void PTXParser::uninitializableDeclaration( const std::string& name )
+  {
+  }
+  void PTXParser::initializableDeclaration( const std::string& name,  YYLTYPE& one, YYLTYPE& two )
+  {
+    out 
+      << tokenToDataType(tokenDataType)  << " "
+      <<  name.c_str() 
+      << "[" << nValuesInitializer << "]= { " << decimalList[0];
+    int n = decimalList.size();
+    for (int i = 1; i < n; i++)
+      out << ", " << decimalList[i];
+    out << " }; \n";
 
+    assert(decimalList.size() == nValuesInitializer);
+    decimalList.clear();
+  }
+
+  void PTXParser::assignment()
+  {
+  }
+  void PTXParser::decimalListSingle( long long int value )
+  {
+    decimalList.push_back(value);
+  }
+  void PTXParser::decimalListSingle2( long long int value )
+  {
+    decimalList.push_back(value);
+  }
+
+  /****************/
+
+  void PTXParser::arrayDimensionSet( long long int value, YYLTYPE& location, bool add )
+  {
+    nValuesInitializer = value;
+  }
+  void PTXParser::arrayDimensionSet()
+  {
+  }
+  void PTXParser::arrayDimensions()
+  {
+  }
 
   /****************/
 
