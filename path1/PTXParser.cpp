@@ -105,7 +105,10 @@ namespace parser
     if (isFunctionBody && nOpenBrace == 0)
     {
       functionBodyLocation[1] = location;
-      out << " {...}; \n";
+      if (isEntry)
+        out << " { /* entry */ }; \n";
+      else
+        out << " { /* func */ }; \n";
       isFunctionBody = false;
     }
  //   out << "};\n";
@@ -142,15 +145,18 @@ namespace parser
     for (int i = 1; i < narg; i++)
       out << ",\n " << tokenToDataType(argumentList[i].first)
       << removeFuncName(calleeName, argumentList[i].second);
-    out << "\n); \n";
+    out << "\n) ";
 
 
-    isEntry = false;
+    isEntry = true;
     returnArgumentList.clear();
     argumentList.clear();
+    isFunctionBody = true;
   }
   void PTXParser::entryPrototype( YYLTYPE& location )
   {
+    isFunctionBody = false;
+    out << "; \n";
   }
   void PTXParser::entryStatement( YYLTYPE& location )
   {
