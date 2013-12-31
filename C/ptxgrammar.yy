@@ -107,7 +107,7 @@ arrayDimensionSet : '[' TOKEN_INT ']' { $$ = $2; }
 arrayDimensions : /* empty string */;
 arrayDimensions : arrayDimensionSet;
 
-identifier: TOKEN_STRING;
+identifier: TOKEN_STRING { strcpy($$, $1); }
 parameter : TOKEN_PARAM;
 
 alignment : TOKEN_ALIGN TOKEN_INT {$$ = $2;}
@@ -124,7 +124,7 @@ argumentListBody : /* empty string */;
 argumentListBody : argumentListBody ',' argumentDeclaration;
 argumentList: argumentListBegin argumentListBody argumentListEnd;
 
-visibleEntryDeclaration: TOKEN_VISIBLE TOKEN_ENTRY TOKEN_STRING argumentList
+visibleEntryDeclaration: TOKEN_VISIBLE TOKEN_ENTRY identifier argumentList
 {
    state.visibleEntryDeclaration($3, @1);
    std::cerr << " __global__ " << $3 << std::endl;
