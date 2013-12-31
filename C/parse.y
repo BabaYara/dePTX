@@ -37,7 +37,7 @@ void yyerror(const char *s);
 
 // define the constant-string tokens:
 %token TOKEN_VERSION TOKEN_TARGET TOKEN_ADDRESS_SIZE;
-%token TOKEN_EXTERN TOKEN_FUNC TOKEN_ENTRY
+%token TOKEN_EXTERN TOKEN_FUNC TOKEN_ENTRY TOKEN_WEAK;
 %token TOKEN_GLOBAL TOKEN_ALIGN
 %token TOKEN_VISIBLE 
 %token TOKEN_PARAM TOKEN_REG
@@ -58,22 +58,50 @@ void yyerror(const char *s);
 // the first rule defined is the highest-level rule, which in our
 // case is just the concept of a whole "snazzle file":
 ptxsource:
-  header ptxbody
+  header ptxbody 
 
 header:
-  ENDLS version target address_size ENDLS { std:cerr << "Done reading PTX " << std::endl; }
+  ENDLS version target address_size { std:cerr << "Done reading PTX " << std::endl; }
 version:
-  TOKEN_VERSION FLOAT ENDLS { std::cerr << "Reading PTX version " << $2  << std::endl; };
+  TOKEN_VERSION FLOAT ENDL { std::cerr << "Reading PTX version " << $2  << std::endl; };
 target:
-  TOKEN_TARGET STRING ENDLS { std::cerr << "Target " << $2  << std::endl; };
+  TOKEN_TARGET STRING ENDL { std::cerr << "Target " << $2  << std::endl; };
 address_size:
-  TOKEN_ADDRESS_SIZE INT { std::cerr << "Address_Size " << $2  << std::endl; };
+  TOKEN_ADDRESS_SIZE INT ENDL { std::cerr << "Address_Size " << $2  << std::endl; };
 
-
-ptxfunction:
-  TOKEN_EXTERN | TOKEN_VISIBLE
  
-  
+
+anytoken: 
+ TOKEN_VERSION | TOKEN_TARGET | TOKEN_ADDRESS_SIZE
+| TOKEN_GLOBAL | TOKEN_ALIGN
+| TOKEN_PARAM | TOKEN_REG
+| TOKEN_B8 | TOKEN_B16 | TOKEN_B32 | TOKEN_B64
+| TOKEN_U8 | TOKEN_U16 | TOKEN_U32 | TOKEN_U64
+| TOKEN_S8 | TOKEN_S16 | TOKEN_S32 | TOKEN_S64
+| TOKEN_F32 | TOKEN_F64
+| TOKEN_PRED | STRING | FLOAT | INT | ENDL
+| '<'
+| '>'
+| '%'
+| '['
+| ']'
+| '{'
+| '}'
+| '('
+| ')'
+| ';';
+
+
+ptxbody: 
+  anytoken ptxbody
+  | anytoken
+  | TOKEN_EXTERN TOKEN_FUNC ptxbody 
+  | TOKEN_WEAK TOKEN_FUNC  ptxbody
+  | TOKEN_EXTERN TOKEN_ENTRY  ptxbody
+  | TOKEN_WEAK TOKEN_ENTRY  ptxbody
+  | TOKEN_VISIBLE TOKEN_FUNC  ptxbody
+  | TOKEN_VISIBLE TOKEN_ENTRY  ptxbody;
+
 
 ENDLS:
 	ENDLS ENDL
