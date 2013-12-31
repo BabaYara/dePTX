@@ -46,40 +46,41 @@ void yyerror(const char *s);
 %token TOKEN_S8 TOKEN_S16 TOKEN_S32 TOKEN_S64
 %token TOKEN_F32 TOKEN_F64
 %token TOKEN_PRED
-%token ENDL
 
 // define the "terminal symbol" token types I'm going to use (in CAPS
 // by convention), and associate each with a field of the union:
 %token <ival> INT
 %token <fval> FLOAT
 %token <sval> STRING
+%type<sval> identifier
 
 %%
 // the first rule defined is the highest-level rule, which in our
 // case is just the concept of a whole "snazzle file":
 ptxsource:
-  header ptxbody 
+  header ptxbody;
 
 header:
-  ENDLS version target address_size { std:cerr << "Done reading PTX " << std::endl; }
+  version target  address_size { std:cerr << "Done reading PTX " << std::endl; }
 version:
-  TOKEN_VERSION FLOAT ENDL { std::cerr << "Reading PTX version " << $2  << std::endl; };
+  TOKEN_VERSION FLOAT  { std::cerr << "Reading PTX version " << $2  << std::endl; };
 target:
-  TOKEN_TARGET STRING ENDL { std::cerr << "Target " << $2  << std::endl; };
+  TOKEN_TARGET STRING  { std::cerr << "Target " << $2  << std::endl; };
 address_size:
-  TOKEN_ADDRESS_SIZE INT ENDL { std::cerr << "Address_Size " << $2  << std::endl; };
+  TOKEN_ADDRESS_SIZE INT  { std::cerr << "Address_Size " << $2  << std::endl; };
 
  
 
+dataTypeId : TOKEN_U8 | TOKEN_U16 | TOKEN_U32 | TOKEN_U64 | TOKEN_S8 
+	| TOKEN_S16 | TOKEN_S32 | TOKEN_S64 | TOKEN_B8 | TOKEN_B16 | TOKEN_B32 
+	| TOKEN_B64 | TOKEN_F32 | TOKEN_F64 | TOKEN_PRED;
+
 anytoken: 
- TOKEN_VERSION | TOKEN_TARGET | TOKEN_ADDRESS_SIZE
-| TOKEN_GLOBAL | TOKEN_ALIGN
+  TOKEN_GLOBAL | TOKEN_ALIGN 
 | TOKEN_PARAM | TOKEN_REG
-| TOKEN_B8 | TOKEN_B16 | TOKEN_B32 | TOKEN_B64
-| TOKEN_U8 | TOKEN_U16 | TOKEN_U32 | TOKEN_U64
-| TOKEN_S8 | TOKEN_S16 | TOKEN_S32 | TOKEN_S64
-| TOKEN_F32 | TOKEN_F64
-| TOKEN_PRED | STRING | FLOAT | INT | ENDL
+| dataTypeId
+| STRING | FLOAT | INT
+| TOKEN_WEAK | TOKEN_EXTERN | TOKEN_FUNC | TOKEN_ENTRY
 | '<'
 | '>'
 | '%'
@@ -89,23 +90,42 @@ anytoken:
 | '}'
 | '('
 | ')'
-| ';';
+| ';'
+| ',';
 
 
 ptxbody: 
-  ptxbody anytoken
-  | anytoken
-  | ptxbody TOKEN_EXTERN TOKEN_FUNC 
-  | ptxbody TOKEN_WEAK TOKEN_FUNC  
-  | ptxbody TOKEN_EXTERN TOKEN_ENTRY  
-  | ptxbody TOKEN_WEAK TOKEN_ENTRY  
-  | ptxbody visibleFunctionDeclaration
-  | ptxbody visibleEntryDeclaration
+    ptxbody visibleFunctionDeclaration | visibleFunctionDeclaration
+  | ptxbody visibleEntryDeclaration| visibleEntryDeclaration
+  | ptxbody anytoken | anytoken;
 
-visibleEntryDeclaration: TOKEN_VISIBLE TOKEN_ENTRY STRING '('
+arrayDimensionSet : '[' INT ']';
+arrayDimensionSet : arrayDimensionSet '[' INT ']';
+arrayDimensionSet : '[' ']';
+arrayDimensions : /* empty string */;
+arrayDimensions : arrayDimensionSet;
+
+identifier: STRING { $$ = $1;};
+parameter : TOKEN_PARAM;
+
+alignment : TOKEN_ALIGN INT;
+addressableVariablePrefix : dataTypeId;
+addressableVariablePrefix : alignment dataTypeId;
+
+argumentDeclaration : parameter addressableVariablePrefix identifier arrayDimensions;
+
+
+argumentListBegin : '(';
+argumentListEnd : ')';
+argumentListBody : argumentDeclaration;
+argumentListBody : /* empty string */;
+argumentListBody : argumentListBody ',' argumentDeclaration;
+argumentList: argumentListBegin argumentListBody argumentListEnd;
+
+visibleEntryDeclaration: TOKEN_VISIBLE TOKEN_ENTRY identifier argumentList
 {
    std::cerr << " __global__ " << $3 << std::endl;
-}
+};
 
 visibleFunctionDeclaration: TOKEN_VISIBLE TOKEN_FUNC STRING '('
 {
@@ -113,9 +133,6 @@ visibleFunctionDeclaration: TOKEN_VISIBLE TOKEN_FUNC STRING '('
 }
 
 
-ENDLS:
-	ENDLS ENDL
-	| ENDL ;
 %%
 
 void yyerror(const char *s) {

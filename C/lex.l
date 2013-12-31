@@ -57,13 +57,18 @@ ZO_SWIZZLE ([01]+[w-z]+)+|([01]+[rgba]+)+|([01]+[uv]+)+
 "("             { return '(';}
 ")"             { return ')';}
 ";"             { return ';';}
+","             { return ',';}
 [0-9]+\.[0-9]+ { yylval.fval = atof(yytext); return FLOAT; }
 [0-9]+   { yylval.ival = atoi(yytext); return INT; }
 [a-zA-Z0-9_]+   {
 	yylval.sval = strdup(yytext);
 	return STRING;
 }
-\n             { ++line_num; return ENDL; }
+\n {
+    yylloc.last_line++;
+    yylloc.last_column = 1;
+    ++line_num;
+}
 .              ;
 %%
 
