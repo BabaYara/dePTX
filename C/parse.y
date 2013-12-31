@@ -36,23 +36,23 @@ void yyerror(const char *s);
 }
 
 // define the constant-string tokens:
-%token TOKEN_VERSION TOKEN_TARGET TOKEN_ADDRESS_SIZE;
-%token TOKEN_EXTERN TOKEN_FUNC TOKEN_ENTRY TOKEN_WEAK;
-%token TOKEN_GLOBAL TOKEN_ALIGN
-%token TOKEN_VISIBLE 
-%token TOKEN_PARAM TOKEN_REG
+%token TOKEN_VERSION TOKEN_TARGET TOKEN_ADDRESS_SIZE
+%token TOKEN_VISIBLE TOKEN_FUNC TOKEN_ENTRY
+%token TOKEN_PARAM TOKEN_ALIGN 
 %token TOKEN_B8 TOKEN_B16 TOKEN_B32 TOKEN_B64
 %token TOKEN_U8 TOKEN_U16 TOKEN_U32 TOKEN_U64
 %token TOKEN_S8 TOKEN_S16 TOKEN_S32 TOKEN_S64
 %token TOKEN_F32 TOKEN_F64
-%token TOKEN_PRED
 
 // define the "terminal symbol" token types I'm going to use (in CAPS
 // by convention), and associate each with a field of the union:
 %token <ival> INT
 %token <fval> FLOAT
 %token <sval> STRING
+
 %type<sval> identifier
+%type<ival> arrayDimensionSet
+%type<ival> alignment
 
 %%
 // the first rule defined is the highest-level rule, which in our
@@ -73,17 +73,14 @@ address_size:
 
 dataTypeId : TOKEN_U8 | TOKEN_U16 | TOKEN_U32 | TOKEN_U64 | TOKEN_S8 
 	| TOKEN_S16 | TOKEN_S32 | TOKEN_S64 | TOKEN_B8 | TOKEN_B16 | TOKEN_B32 
-	| TOKEN_B64 | TOKEN_F32 | TOKEN_F64 | TOKEN_PRED;
+	| TOKEN_B64 | TOKEN_F32 | TOKEN_F64;
 
 anytoken: 
-  TOKEN_GLOBAL | TOKEN_ALIGN 
-| TOKEN_PARAM | TOKEN_REG
+  TOKEN_ALIGN 
+| TOKEN_PARAM 
 | dataTypeId
 | STRING | FLOAT | INT
-| TOKEN_WEAK | TOKEN_EXTERN | TOKEN_FUNC | TOKEN_ENTRY
-| '<'
-| '>'
-| '%'
+| TOKEN_FUNC | TOKEN_ENTRY
 | '['
 | ']'
 | '{'
@@ -99,16 +96,16 @@ ptxbody:
   | ptxbody visibleEntryDeclaration| visibleEntryDeclaration
   | ptxbody anytoken | anytoken;
 
-arrayDimensionSet : '[' INT ']';
-arrayDimensionSet : arrayDimensionSet '[' INT ']';
-arrayDimensionSet : '[' ']';
+arrayDimensionSet : '[' INT ']' { $$ = $2; }
+// arrayDimensionSet : arrayDimensionSet '[' INT ']' { $$ = $2; }
+// arrayDimensionSet : '[' ']' { $$ = 0; }
 arrayDimensions : /* empty string */;
 arrayDimensions : arrayDimensionSet;
 
 identifier: STRING { $$ = $1;};
 parameter : TOKEN_PARAM;
 
-alignment : TOKEN_ALIGN INT;
+alignment : TOKEN_ALIGN INT {$$ = $2;}
 addressableVariablePrefix : dataTypeId;
 addressableVariablePrefix : alignment dataTypeId;
 
