@@ -211,6 +211,8 @@ LABEL ({IDENTIFIER}{WHITESPACE}":")
                                     return OPCODE_SHL; }
 "shr"                           { sstrcpy( yylval->text, yytext, 1024 ); \
                                     return OPCODE_SHR; }
+"shf"                           { sstrcpy( yylval->text, yytext, 1024 ); \
+                                    return OPCODE_SHF; }
 "sin"                           { sstrcpy( yylval->text, yytext, 1024 ); \
                                     return OPCODE_SIN; }
 "slct"                          { sstrcpy( yylval->text, yytext, 1024 ); \
@@ -410,6 +412,7 @@ LABEL ({IDENTIFIER}{WHITESPACE}":")
 ".y"                            { yylval->value = TOKEN_Y; return TOKEN_Y; }
 ".z"                            { yylval->value = TOKEN_Z; return TOKEN_Z; }
 ".w"                            { yylval->value = TOKEN_W; return TOKEN_W; }
+".l"                            { yylval->value = TOKEN_L; return TOKEN_L; }
 ".r"                            { yylval->value = TOKEN_R; return TOKEN_R; }
 ".g"                            { yylval->value = TOKEN_G; return TOKEN_G; }
 ".b"                            { yylval->value = TOKEN_B; return TOKEN_B; }
@@ -478,6 +481,8 @@ LABEL ({IDENTIFIER}{WHITESPACE}":")
 ".to"                           { yylval->value = TOKEN_TO; return TOKEN_TO; }
 ".clamp"                        { yylval->value = TOKEN_CLAMP; 
                                     return TOKEN_CLAMP; }
+".wrap"                        { yylval->value = TOKEN_WRAP; 
+                                    return TOKEN_WRAP; }
 ".zero"                         { yylval->value = TOKEN_ZERO; \
                                     return TOKEN_ZERO; }
 ".arrive"                       { yylval->value = TOKEN_ARRIVE; \

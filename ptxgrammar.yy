@@ -66,6 +66,7 @@
 %token<text> OPCODE_POPC OPCODE_PRMT OPCODE_CLZ OPCODE_BFIND OPCODE_BREV 
 %token<text> OPCODE_BFI OPCODE_BFE OPCODE_TESTP OPCODE_TLD4 OPCODE_BAR
 %token<text> OPCODE_PREFETCH OPCODE_PREFETCHU OPCODE_SHFL
+%token<text> OPCODE_SHF
 
 %token<value> PREPROCESSOR_INCLUDE PREPROCESSOR_DEFINE PREPROCESSOR_IF 
 %token<value> PREPROCESSOR_IFDEF PREPROCESSOR_ELSE PREPROCESSOR_ENDIF 
@@ -97,7 +98,7 @@
 %token<value> TOKEN_TAIL TOKEN_UNI TOKEN_ALIGN TOKEN_BYTE TOKEN_WIDE TOKEN_CARRY
 %token<value> TOKEN_RNI TOKEN_RMI TOKEN_RZI TOKEN_RPI
 %token<value> TOKEN_FTZ TOKEN_APPROX TOKEN_FULL TOKEN_SHIFT_AMOUNT
-%token<value> TOKEN_R TOKEN_G TOKEN_B TOKEN_A
+%token<value> TOKEN_R TOKEN_L TOKEN_G TOKEN_B TOKEN_A
 
 %token<value> TOKEN_TO
 
@@ -125,7 +126,7 @@
 %token<value> TOKEN_ADDR_MODE_2
 %token<value> TOKEN_CHANNEL_DATA_TYPE TOKEN_CHANNEL_ORDER
 
-%token<value> TOKEN_TRAP TOKEN_CLAMP TOKEN_ZERO
+%token<value> TOKEN_TRAP TOKEN_CLAMP TOKEN_ZERO TOKEN_WRAP
 
 %token<value> TOKEN_ARRIVE TOKEN_RED TOKEN_POPC TOKEN_SYNC
 
@@ -859,7 +860,8 @@ instruction : ftzInstruction2 | ftzInstruction3 | approxInstruction2
 	| ld | ldu | mad | mad24 | madc | membar | mov | mul24 | mul | notInstruction
 	| pmevent | popc | prefetch | prefetchu | prmt | rcpSqrtInstruction | red
 	| ret | sad | selp | set | setp | slct | st | suld | suq | sured | sust
-	| testp | tex | tld4 | trap | txq | vote | shfl;
+	| testp | tex | tld4 | trap | txq | vote | shfl
+  | shf
 
 basicInstruction3Opcode : OPCODE_AND | OPCODE_OR 
 	| OPCODE_REM | OPCODE_SHL | OPCODE_SHR | OPCODE_XOR | OPCODE_COPYSIGN;
@@ -1227,6 +1229,14 @@ mad : madOpcode mulModifier dataType operand ',' operand
 {
 	// state.instruction( $<text>1, $<value>3 );
 };
+
+shfModifier : TOKEN_CLAMP | TOKEN_WRAP;
+shfLeftRight: TOKEN_L| TOKEN_R;
+shf : OPCODE_SHF  shfLeftRight shfModifier dataType
+    operand ',' operand ',' operand ',' operand ';'
+{
+};
+
 
 mad24Modifier : optionalSaturate;
 

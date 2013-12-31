@@ -257,7 +257,7 @@ BB0_10:
 	or.b32  	%r527, %r225, %r221;
 	mul.ftz.f32 	%f6, %f1, %f1;
 	xor.b32  	%r529, %r7, -1091571699;
-//	shf.l.wrap.b32 	%r528, %r7, %r7, 16;
+	shf.l.wrap.b32 	%r528, %r7, %r7, 16;
 	ld.global.u8 	%r10, [%rd1];
 	mul.ftz.f32 	%f4, %f812, 0f3F000000;
 	rcp.approx.ftz.f32 	%f5, %f4;
