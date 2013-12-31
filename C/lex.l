@@ -24,6 +24,7 @@ ZO_SWIZZLE ([01]+[w-z]+)+|([01]+[rgba]+)+|([01]+[uv]+)+
 ".target"       { return TOKEN_TARGET; }
 ".address_size" { return TOKEN_ADDRESS_SIZE; }
 ".extern"       { return TOKEN_EXTERN;}
+".weak"       { return TOKEN_WEAK;}
 ".func"         { return TOKEN_FUNC; }
 ".entry"        { return TOKEN_ENTRY; }
 ".global"       { return TOKEN_GLOBAL; }

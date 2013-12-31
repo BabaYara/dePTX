@@ -93,14 +93,24 @@ anytoken:
 
 
 ptxbody: 
-  anytoken ptxbody
+  ptxbody anytoken
   | anytoken
-  | TOKEN_EXTERN TOKEN_FUNC ptxbody 
-  | TOKEN_WEAK TOKEN_FUNC  ptxbody
-  | TOKEN_EXTERN TOKEN_ENTRY  ptxbody
-  | TOKEN_WEAK TOKEN_ENTRY  ptxbody
-  | TOKEN_VISIBLE TOKEN_FUNC  ptxbody
-  | TOKEN_VISIBLE TOKEN_ENTRY  ptxbody;
+  | ptxbody TOKEN_EXTERN TOKEN_FUNC 
+  | ptxbody TOKEN_WEAK TOKEN_FUNC  
+  | ptxbody TOKEN_EXTERN TOKEN_ENTRY  
+  | ptxbody TOKEN_WEAK TOKEN_ENTRY  
+  | ptxbody visibleFunctionDeclaration
+  | ptxbody visibleEntryDeclaration
+
+visibleEntryDeclaration: TOKEN_VISIBLE TOKEN_ENTRY STRING '('
+{
+   std::cerr << " __global__ " << $3 << std::endl;
+}
+
+visibleFunctionDeclaration: TOKEN_VISIBLE TOKEN_FUNC STRING '('
+{
+   std::cerr << " __device__ " << $3 << std::endl;
+}
 
 
 ENDLS:
