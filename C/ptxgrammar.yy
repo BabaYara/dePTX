@@ -13,7 +13,7 @@ using namespace std;
 
 
 
-#include "parse.tab.h"  // to get the token types that we return
+#include "ptxgrammar.hh"  // to get the token types that we return
 
 // stuff from flex that bison needs to know about:
 extern "C" int yylex();

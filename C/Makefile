@@ -1,13 +1,26 @@
 all: dePTX
 
-parse.tab.c parse.tab.h: parse.y
-	bison -d -v -t parse.y
+ptxgrammar.cc : ptxgrammar.yy
+	bison -d -v -t ptxgrammar.yy -o ptxgrammar.cc
 
-lex.yy.c: lex.l parse.tab.h
-	flex lex.l
+ptx.cc: ptx.ll ptxgrammar.cc
+	flex -t ptx.ll > ptx.cc
 
-dePTX: lex.yy.c parse.tab.c parse.tab.h
-	g++ dePTX.cpp parse.tab.c lex.yy.c -lfl -o dePTX -L/opt/local/lib 
+%.o: %.cc
+	g++ -O3 -c $< -o $@ -I/opt/local/include
+
+%.o: %.cpp
+	g++ -O3 -c $< -o $@ -I/opt/local/include
+
+OBJ= dePTX.o \
+		 ptx.o \
+		 ptxgrammar.o
+
+dePTX: $(OBJ)
+	g++ -lfl $^ -o $@ -L/opt/local/lib 
 
 clean: 
-	/bin/rm -f *.tab.c *.tab.h *.yy.c dePTX
+	/bin/rm -f dePTX $(OBJ) ptxgrammar.hh ptxgrammar.cc ptx.cc ptxgrammar.output
+
+$(OBJ):  ptxgrammar.cc ptx.cc
+

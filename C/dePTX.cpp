@@ -1,7 +1,7 @@
 #include <cstdio>
 using namespace std;
 #include <iostream>
-#include "parse.tab.h"
+#include "ptxgrammar.hh"
 extern "C" FILE *yyin;
 
 int main() {
