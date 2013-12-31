@@ -135,7 +135,7 @@ namespace parser
     assert(returnArgumentList.size() <=1);
     out  
       << attributeString(functionAttribute);
-    out << "extern \"C\" __global ";
+    out << "extern \"C\" __global__ ";
     assert (returnArgumentList.empty());
     out << "void ";
     out << calleeName << " (\n " 

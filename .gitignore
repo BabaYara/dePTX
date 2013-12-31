@@ -6,7 +6,6 @@
 __pycache__
 
 #misc sources
-*.ptx
 *.cu
 *.cubin
 
