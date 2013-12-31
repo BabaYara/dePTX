@@ -24,6 +24,8 @@ namespace parser
     isReturnArgumentList  = false;
     isInitializableDeclaration = false;
     isEntry = false;
+    isFunctionBody = false;
+    nOpenBrace = 0;
 
     stmt_attribute = static_cast<attribute_t>(-1);
     stmt_locationAddress = static_cast<locationAddress_t>(-1);
@@ -76,20 +78,36 @@ namespace parser
     for (int i = 1; i < narg; i++)
       out << ",\n " << tokenToDataType(argumentList[i].first)
       << removeFuncName(calleeName, argumentList[i].second);
-    out << "\n); \n";
+    out << "\n)";
+  
+    if (!body) 
+      out << ";\n";
 
 
     isEntry = false;
     returnArgumentList.clear();
     argumentList.clear();
+    isFunctionBody = body;
   }
 
   void PTXParser::openBrace( YYLTYPE& location )
   {
+    if (isFunctionBody && nOpenBrace == 0)
+    {
+      functionBodyLocation[0] = location;
+    }
 //    out << "{";
+    nOpenBrace++;
   }
   void PTXParser::closeBrace( YYLTYPE& location )
   {
+    nOpenBrace--;
+    if (isFunctionBody && nOpenBrace == 0)
+    {
+      functionBodyLocation[1] = location;
+      out << " {...}; \n";
+      isFunctionBody = false;
+    }
  //   out << "};\n";
   }
   void PTXParser::returnArgumentListBegin( YYLTYPE& location )

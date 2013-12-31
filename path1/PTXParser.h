@@ -157,6 +157,9 @@ namespace parser
         bool isReturnArgumentList;
         bool isInitializableDeclaration;
         bool isEntry;
+        bool isFunctionBody;
+        YYLTYPE functionBodyLocation[2];
+        int nOpenBrace;
         std::vector<double> doubleList;
         std::vector<unsigned long long> decimalList;
         unsigned long long nValuesInitializer;
@@ -189,6 +192,7 @@ namespace parser
         void entryPrototype( YYLTYPE& location );
         void entryStatement( YYLTYPE& location );
         void metadata( const std::string& comment );
+
 
         void openBrace( YYLTYPE& location );
         void closeBrace( YYLTYPE& location );

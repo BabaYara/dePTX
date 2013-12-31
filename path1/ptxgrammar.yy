@@ -561,7 +561,7 @@ entry : entryDeclaration openBrace closeBrace;
 
 entry : entryDeclaration ';'
 {
-	// state.entryPrototype( @1 );
+   state.entryPrototype( @1 );
 };
 
 entryStatement : registerDeclaration | location | label | pragma 
