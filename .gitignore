@@ -6,8 +6,12 @@
 # Compiled Dynamic libraries
 *.so
 *.dylib
+*.cu
+*.cubin
 
 # Compiled Static libraries
 *.lai
 *.la
 *.a
+*.swp
+*~
