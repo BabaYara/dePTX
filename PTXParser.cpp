@@ -155,6 +155,7 @@ namespace parser
   {
     isEntry = true;
     calleeName = name;
+    functionAttribute = stmt_attribute;
   }
   void PTXParser::entryDeclaration( YYLTYPE& location ) 
   {
