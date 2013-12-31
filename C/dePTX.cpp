@@ -1,28 +1,24 @@
 #include <cstdio>
-using namespace std;
 #include <iostream>
-#include "ptxgrammar.hh"
-extern "C" FILE *yyin;
+#include <fstream>
+#include <cassert>
+#include "PTXParser.h"
 
-int main() {
+int main(int argc, char * argv[])
+{
 	// open a file handle to a particular file:
-#if 0
-  FILE *myfile = fopen("kernel.ptx", "r");
-	// make sure it's valid:
-	if (!myfile) {
-		cout << "I can't open a.snazzle.file!" << endl;
-		return -1;
-	}
-#else
-  FILE *myfile = stdin;
-#endif
-	// set lex to read from it instead of defaulting to STDIN:
-	yyin = myfile;
+  std::istream & input = std::cin;
+  std::ostream & error = std::cerr;
+  std::ostream & output = std::cout;
+  parser::PTXLexer lexer(&input, &error);
+  parser::PTXParser state(output);
 
 	// parse through the input until there is no more:
-	
-	do {
-		yyparse();
-	} while (!feof(yyin));
+  //
+
+  do {
+    ptx::yyparse(lexer, state);
+  }
+  while (!input.eof());
 	
 }

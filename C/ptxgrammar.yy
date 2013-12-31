@@ -1,39 +1,44 @@
-%locations
-
-%code requires {
-
-#define SourcePos YYLTYPE 
-
-}
-
 %{
-#include <cstdio>
-#include <iostream>
-using namespace std;
+	#include <iostream>
+	#include "PTXParser.h"
+	#include "PTXLexer.h"
+	#include <cassert>
+	#include <cstring>
+  #include <sstream>
 
+	#define YYERROR_VERBOSE 1
 
+	#ifdef REPORT_BASE
+	#undef REPORT_BASE
+	#endif
 
-#include "ptxgrammar.hh"  // to get the token types that we return
+	#define REPORT_BASE 0
 
-// stuff from flex that bison needs to know about:
-extern "C" int yylex();
-//extern "C" int yyparse();
-extern "C" FILE *yyin;
-extern int line_num;
- 
-void yyerror(const char *s);
+	namespace ptx
+	{
+	
+    int yylex( YYSTYPE* token, YYLTYPE* location, parser::PTXLexer& lexer, 
+      parser::PTXParser& state );
+    void yyerror( YYLTYPE* location, parser::PTXLexer& lexer, 
+      parser::PTXParser& state, char const* message );
+    
+    std::string yyTypeToString( int );
+	
 %}
 
-// Bison fundamentally works by asking flex to get the next token, which it
-// returns as an object of type "yystype".  But tokens could be of any
-// arbitrary data type!  So we deal with that in Bison by defining a C union
-// holding each of the types of tokens that Flex could return, and have Bison
-// use that union instead of "int" for the definition of "yystype":
-%union {
-	int ival;
-	float fval;
-	char *sval;
+%union
+{
+	char svalue[1024];
+	long long int ivalue;
+	long long unsigned int uvalue;
+	double fvalue;
 }
+
+%parse-param {parser::PTXLexer& lexer}
+%parse-param {parser::PTXParser& state}
+%lex-param   {parser::PTXLexer& lexer}
+%lex-param   {parser::PTXParser& state}
+%pure-parser
 
 // define the constant-string tokens:
 %token TOKEN_VERSION TOKEN_TARGET TOKEN_ADDRESS_SIZE
@@ -46,13 +51,13 @@ void yyerror(const char *s);
 
 // define the "terminal symbol" token types I'm going to use (in CAPS
 // by convention), and associate each with a field of the union:
-%token <ival> INT
-%token <fval> FLOAT
-%token <sval> STRING
+%token <ivalue> TOKEN_INT
+%token <fvalue> TOKEN_FLOAT
+%token <svalue> TOKEN_STRING
 
-%type<sval> identifier
-%type<ival> arrayDimensionSet
-%type<ival> alignment
+%type<svalue> identifier
+%type<ivalue> arrayDimensionSet
+%type<ivalue> alignment
 
 %%
 // the first rule defined is the highest-level rule, which in our
@@ -61,13 +66,13 @@ ptxsource:
   header ptxbody;
 
 header:
-  version target  address_size { std:cerr << "Done reading PTX " << std::endl; }
+  version target  address_size { std::cerr << "Done reading PTX " << std::endl; }
 version:
-  TOKEN_VERSION FLOAT  { std::cerr << "Reading PTX version " << $2  << std::endl; };
+  TOKEN_VERSION TOKEN_FLOAT  { std::cerr << "Reading PTX version " << $2  << std::endl; };
 target:
-  TOKEN_TARGET STRING  { std::cerr << "Target " << $2  << std::endl; };
+  TOKEN_TARGET TOKEN_STRING  { std::cerr << "Target " << $2  << std::endl; };
 address_size:
-  TOKEN_ADDRESS_SIZE INT  { std::cerr << "Address_Size " << $2  << std::endl; };
+  TOKEN_ADDRESS_SIZE TOKEN_INT  { std::cerr << "Address_Size " << $2  << std::endl; };
 
  
 
@@ -79,7 +84,7 @@ anytoken:
   TOKEN_ALIGN 
 | TOKEN_PARAM 
 | dataTypeId
-| STRING | FLOAT | INT
+| TOKEN_STRING | TOKEN_FLOAT | TOKEN_INT
 | TOKEN_FUNC | TOKEN_ENTRY
 | '['
 | ']'
@@ -96,16 +101,16 @@ ptxbody:
   | ptxbody visibleEntryDeclaration| visibleEntryDeclaration
   | ptxbody anytoken | anytoken;
 
-arrayDimensionSet : '[' INT ']' { $$ = $2; }
-// arrayDimensionSet : arrayDimensionSet '[' INT ']' { $$ = $2; }
+arrayDimensionSet : '[' TOKEN_INT ']' { $$ = $2; }
+// arrayDimensionSet : arrayDimensionSet '[' TOKEN_INT ']' { $$ = $2; }
 // arrayDimensionSet : '[' ']' { $$ = 0; }
 arrayDimensions : /* empty string */;
 arrayDimensions : arrayDimensionSet;
 
-identifier: STRING { $$ = $1;};
+identifier: TOKEN_STRING;
 parameter : TOKEN_PARAM;
 
-alignment : TOKEN_ALIGN INT {$$ = $2;}
+alignment : TOKEN_ALIGN TOKEN_INT {$$ = $2;}
 addressableVariablePrefix : dataTypeId;
 addressableVariablePrefix : alignment dataTypeId;
 
@@ -119,12 +124,13 @@ argumentListBody : /* empty string */;
 argumentListBody : argumentListBody ',' argumentDeclaration;
 argumentList: argumentListBegin argumentListBody argumentListEnd;
 
-visibleEntryDeclaration: TOKEN_VISIBLE TOKEN_ENTRY identifier argumentList
+visibleEntryDeclaration: TOKEN_VISIBLE TOKEN_ENTRY TOKEN_STRING argumentList
 {
+   state.visibleEntryDeclaration($3, @1);
    std::cerr << " __global__ " << $3 << std::endl;
 };
 
-visibleFunctionDeclaration: TOKEN_VISIBLE TOKEN_FUNC STRING '('
+visibleFunctionDeclaration: TOKEN_VISIBLE TOKEN_FUNC TOKEN_STRING '('
 {
    std::cerr << " __device__ " << $3 << std::endl;
 }
@@ -132,8 +138,47 @@ visibleFunctionDeclaration: TOKEN_VISIBLE TOKEN_FUNC STRING '('
 
 %%
 
-void yyerror(const char *s) {
-	cout << "EEK, parse error on line " << line_num << "!  Message: " << s << endl;
-	// might as well halt now:
-	exit(-1);
+int yylex( YYSTYPE* token, YYLTYPE* location, parser::PTXLexer& lexer, 
+	parser::PTXParser& state )
+{
+	lexer.yylval = token;
+	
+	int tokenValue         = lexer.yylexPosition();
+	location->first_line   = lexer.lineno();
+	location->first_column = lexer.column;
+
+#if 0
+	report( " Lexer (" << location->first_line << ","
+		<< location->first_column 
+		<< "): " << parser::PTXLexer::toString( tokenValue ) << " \"" 
+		<< lexer.YYText() << "\"");
+#endif
+	
+	return tokenValue;
+}
+	
+static std::string toString( YYLTYPE& location, parser::PTXParser& state )
+{
+  std::stringstream stream;
+  stream 
+#if 0
+  << state.fileName 
+#else
+  << "ptx "
+#endif
+  << " (" << location.first_line << ", " 
+    << location.first_column << "): ";
+  return stream.str();
+}
+
+void yyerror( YYLTYPE* location, parser::PTXLexer& lexer, 
+	parser::PTXParser& state, char const* message )
+{
+	std::stringstream stream;
+	stream << toString( *location, state ) 
+		<< " " << message;
+  fprintf(stderr, "--ERROR-- %s %s \n", toString(*location, state).c_str(), message);
+  assert(0);
+}
+
 }

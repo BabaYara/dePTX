@@ -1,16 +1,21 @@
+%option yylineno
+%option noyywrap
+%option yyclass="parser::PTXLexer"
+%option prefix="ptx"
+%option c++
+
 %{
-#include <iostream>
-using namespace std;
-#include "ptxgrammar.hh"
-#define YY_DECL extern "C" int yylex()
-static void lCppComment(SourcePos *);
-int line_num = 1;
+#include "PTXLexer.h"
+#include <cassert>
+#include <sstream>
+#include <cstring>
 %}
 
+COMMENT ("//"[^\n]*)
+TAB [\t]*
 
 %%
-"//"            { line_num++; lCppComment(&yylloc); }
-[ \t]          ;
+{COMMENT}       {nextColumn += strlen(yytext); /* lCppComment(&yylloc); */ }
 ".version"      { return TOKEN_VERSION; }
 ".target"       { return TOKEN_TARGET; }
 ".address_size" { return TOKEN_ADDRESS_SIZE; }
@@ -41,22 +46,20 @@ int line_num = 1;
 ")"             { return ')';}
 ";"             { return ';';}
 ","             { return ',';}
-[0-9]+\.[0-9]+ { yylval.fval = atof(yytext); return FLOAT; }
-[0-9]+   { yylval.ival = atoi(yytext); return INT; }
-[a-zA-Z0-9_]+   {
-	yylval.sval = strdup(yytext);
-	return STRING;
-}
+[0-9]+\.[0-9]+ { yylval->fvalue = atof(yytext); return TOKEN_FLOAT; }
+[0-9]+   { yylval->ivalue = atoi(yytext); return TOKEN_INT; }
+[a-zA-Z0-9_]+   { strcpy(yylval->svalue, yytext); return TOKEN_STRING;}
 \n {
-    yylloc.last_line++;
-    yylloc.last_column = 1;
-    ++line_num;
+ //   yylloc.last_line++;
+//    yylloc.last_column = 1;
+    nextColumn = 1;
 }
 .              ;
 %%
 
 /** Handle a C++-style comment--eat everything up until the end of the line.
  */
+#if 0
 static void
 lCppComment(SourcePos *pos) {
     char c;
@@ -68,3 +71,4 @@ lCppComment(SourcePos *pos) {
         pos->last_column = 1;
     }
 }
+#endif

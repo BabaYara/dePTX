@@ -1,7 +1,7 @@
 all: dePTX
 
 ptxgrammar.cc : ptxgrammar.yy
-	bison -d -v -t ptxgrammar.yy -o ptxgrammar.cc
+	bison -d -v -t  ptxgrammar.yy -o ptxgrammar.cc
 
 ptx.cc: ptx.ll ptxgrammar.cc
 	flex -t ptx.ll > ptx.cc
