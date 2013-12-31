@@ -158,6 +158,8 @@ namespace parser
         bool isInitializableDeclaration;
         bool isEntry;
         bool isFunctionBody;
+        bool isHostCallable;
+        std::string entryHostCode;
         YYLTYPE functionBodyLocation[2];
         int nOpenBrace;
         std::vector<double> doubleList;

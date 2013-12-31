@@ -25,6 +25,7 @@ namespace parser
     isInitializableDeclaration = false;
     isEntry = false;
     isFunctionBody = false;
+    isHostCallable = false;
     nOpenBrace = 0;
 
     stmt_attribute = static_cast<attribute_t>(-1);
@@ -32,7 +33,22 @@ namespace parser
   }
   void PTXParser::version( double version, YYLTYPE& location )
   {
-    out << "_PTX_Version(" << version << ")" << std::endl;
+//    out << "_PTX_Version(" << version << ")" << std::endl;
+    out << "typedef unsigned char       _b8; \n";
+    out << "typedef unsigned short     _b16; \n";
+    out << "typedef unsigned int       _b32; \n";
+    out << "typedef unsigned long long _b64; \n";
+    out << "typedef unsigned char       _u8; \n";
+    out << "typedef unsigned short     _u16; \n";
+    out << "typedef unsigned int       _u32; \n";
+    out << "typedef unsigned long long _u64; \n";
+    out << "typedef char                _s8; \n";
+    out << "typedef short              _s16; \n";
+    out << "typedef int                _s32; \n";
+    out << "typedef long long          _s64; \n";
+    out << "typedef float              _f32; \n";
+    out << "typedef double             _f64; \n";
+    out << " \n";
   };
   void PTXParser::argumentDeclaration( const std::string& name, YYLTYPE& location )
   {
@@ -64,30 +80,33 @@ namespace parser
   {
     assert(!isEntry);
     assert(returnArgumentList.size() <=1);
-    out  
-      << attributeString(functionAttribute);
-    out << "extern \"C\" __device__ ";
-    if (returnArgumentList.empty())
-      out << "void ";
-    else
-      out << tokenToDataType(returnArgumentList[0].first);
-    out << calleeName << " (\n " 
-      << tokenToDataType(argumentList[0].first)
-      << removeFuncName(calleeName, argumentList[0].second);
-    const int narg = argumentList.size();
-    for (int i = 1; i < narg; i++)
-      out << ",\n " << tokenToDataType(argumentList[i].first)
-      << removeFuncName(calleeName, argumentList[i].second);
-    out << "\n)";
-  
-    if (!body) 
-      out << ";\n";
+    if (functionAttribute == VISIBLE)
+    {
+      out  
+        << attributeString(functionAttribute);
+      out << "extern \"C\" __device__ ";
+      if (returnArgumentList.empty())
+        out << "void ";
+      else
+        out << tokenToDataType(returnArgumentList[0].first);
+      out << calleeName << " (\n " 
+        << tokenToDataType(argumentList[0].first)
+        << removeFuncName(calleeName, argumentList[0].second);
+      const int narg = argumentList.size();
+      for (int i = 1; i < narg; i++)
+        out << ",\n " << tokenToDataType(argumentList[i].first)
+          << removeFuncName(calleeName, argumentList[i].second);
+      out << "\n)";
+
+      if (!body) 
+        out << ";\n";
 
 
-    isEntry = false;
+      isEntry = false;
+      isFunctionBody = body;
+    }
     returnArgumentList.clear();
     argumentList.clear();
-    isFunctionBody = body;
   }
 
   void PTXParser::openBrace( YYLTYPE& location )
@@ -96,7 +115,6 @@ namespace parser
     {
       functionBodyLocation[0] = location;
     }
-//    out << "{";
     nOpenBrace++;
   }
   void PTXParser::closeBrace( YYLTYPE& location )
@@ -106,12 +124,21 @@ namespace parser
     {
       functionBodyLocation[1] = location;
       if (isEntry)
-        out << " { /* entry */ }; \n";
+      {
+        out << " { asm(\" // entry \"); }; \n";
+        if (isHostCallable)
+        {
+          out << "/* host launch code */ \n";
+          out << entryHostCode.c_str();
+          out << " \n";
+          isHostCallable = false;
+        }
+        out << " \n";
+      }
       else
-        out << " { /* func */ }; \n";
+        out << " { asm(\" // func \"); }; \n\n";
       isFunctionBody = false;
     }
- //   out << "};\n";
   }
   void PTXParser::returnArgumentListBegin( YYLTYPE& location )
   {
@@ -133,25 +160,60 @@ namespace parser
   {
     assert(isEntry);
     assert(returnArgumentList.size() <=1);
-    out  
-      << attributeString(functionAttribute);
-    out << "extern \"C\" __global__ ";
-    assert (returnArgumentList.empty());
-    out << "void ";
-    out << calleeName << " (\n " 
-      << tokenToDataType(argumentList[0].first)
-      << removeFuncName(calleeName, argumentList[0].second);
-    const int narg = argumentList.size();
-    for (int i = 1; i < narg; i++)
-      out << ",\n " << tokenToDataType(argumentList[i].first)
-      << removeFuncName(calleeName, argumentList[i].second);
-    out << "\n) ";
+    if (functionAttribute == VISIBLE)
+    {
+      out  
+        << attributeString(functionAttribute);
+      out << "extern \"C\" __global__ ";
+      assert (returnArgumentList.empty());
+      out << "void ";
+      out << calleeName << " (\n " 
+        << tokenToDataType(argumentList[0].first)
+        << removeFuncName(calleeName, argumentList[0].second);
+      const int narg = argumentList.size();
+      for (int i = 1; i < narg; i++)
+        out << ",\n " << tokenToDataType(argumentList[i].first)
+          << removeFuncName(calleeName, argumentList[i].second);
+      out << "\n) ";
 
 
-    isEntry = true;
+      isEntry = true;
+      isFunctionBody = true;
+      isHostCallable = false;
+      const int nameLen = calleeName.length();
+      const int hostLen = std::max(0, nameLen-11);
+      const std::string ___sm35host(&calleeName.c_str()[hostLen]);
+      if (___sm35host.compare("___sm35host") == 0)
+      {
+        isHostCallable = true;
+        assert(hostLen > 0);
+        entryHostCode = std::string("extern \"C\" void ");
+        entryHostCode.append(calleeName.c_str(), hostLen);
+        entryHostCode += " (\n ";
+        entryHostCode += tokenToDataType(argumentList[0].first);
+        entryHostCode += removeFuncName(calleeName, argumentList[0].second);
+
+        std::string argList;
+        argList       += removeFuncName(calleeName, argumentList[0].second);
+        for (int i = 1; i < narg; i++)
+        {
+          entryHostCode += ", \n ";
+          argList       += ", ";
+          entryHostCode += tokenToDataType(argumentList[i].first);
+          entryHostCode += removeFuncName(calleeName, argumentList[i].second);
+          argList       += removeFuncName(calleeName, argumentList[i].second);
+        }
+        entryHostCode += "\n) \n ";
+        entryHostCode += "{\n   ";
+        entryHostCode += calleeName;
+        entryHostCode += "<<<1,32>>>( ";
+        entryHostCode += argList;
+        entryHostCode += ");\n ";
+        entryHostCode += "}\n ";
+      }
+    }
     returnArgumentList.clear();
     argumentList.clear();
-    isFunctionBody = true;
   }
   void PTXParser::entryPrototype( YYLTYPE& location )
   {
@@ -218,20 +280,6 @@ namespace parser
 
   void PTXParser::initializableDeclaration( const std::string& name,  YYLTYPE& one, YYLTYPE& two )
   {
-    out 
-//      << " extern \"C\"  "
-      << locationAddressString(stmt_locationAddress)
-      << attributeString(stmt_attribute) 
-      << tokenToDataType(tokenDataType)  
-      <<  name.c_str() 
-      << "[" << nValuesInitializer << "]= { " << decimalList[0];
-    int n = decimalList.size();
-    for (int i = 1; i < n; i++)
-      out << ", " << decimalList[i];
-    out << " }; \n";
-
-    assert(decimalList.size() == nValuesInitializer);
-    decimalList.clear();
   }
 
 
@@ -240,18 +288,15 @@ namespace parser
   }
   void PTXParser::decimalListSingle( long long int value )
   {
-    decimalList.push_back(value);
   }
   void PTXParser::decimalListSingle2( long long int value )
   {
-    decimalList.push_back(value);
   }
 
   /****************/
 
   void PTXParser::arrayDimensionSet( long long int value, YYLTYPE& location, bool add )
   {
-    nValuesInitializer = value;
   }
   void PTXParser::arrayDimensionSet()
   {
