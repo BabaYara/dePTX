@@ -46,6 +46,7 @@
 %token TOKEN_VERSION TOKEN_TARGET TOKEN_ADDRESS_SIZE
 %token TOKEN_VISIBLE TOKEN_FUNC TOKEN_ENTRY
 %token TOKEN_PARAM TOKEN_ALIGN 
+%token TOKEN_GLOBAL
 %token<ivalue> TOKEN_B8 TOKEN_B16 TOKEN_B32 TOKEN_B64
 %token<ivalue> TOKEN_U8 TOKEN_U16 TOKEN_U32 TOKEN_U64
 %token<ivalue> TOKEN_S8 TOKEN_S16 TOKEN_S32 TOKEN_S64
@@ -98,23 +99,22 @@ anytoken:
 | dataType
 | TOKEN_STRING | TOKEN_FLOAT | TOKEN_INT
 | TOKEN_FUNC | TOKEN_ENTRY
+| TOKEN_GLOBAL
 | '['
 | ']'
-| '{'
-| '}'
 | '('
 | ')'
-| ';'
 | ',';
 
 ptxbody: 
     ptxbody visibleFunctionDeclaration | visibleFunctionDeclaration
   | ptxbody visibleEntryDeclaration| visibleEntryDeclaration
+  | ptxbody visibleInitializableDeclaration| visibleInitializableDeclaration
   | ptxbody anytoken | anytoken;
 
 
 
-arrayDimensionSet : '[' TOKEN_INT ']' { $$ = $2; }
+arrayDimensionSet : '[' TOKEN_INT ']' { $$ = $2; state.arrayDimensions($<ivalue>2); }
 // arrayDimensionSet : arrayDimensionSet '[' TOKEN_INT ']' { $$ = $2; }
 // arrayDimensionSet : '[' ']' { $$ = 0; }
 arrayDimensions : /* empty string */;
@@ -153,6 +153,12 @@ visibleFunctionDeclaration: TOKEN_VISIBLE TOKEN_FUNC optionalReturnArgumentList 
 {
    state.visibleFunctionDeclaration($<svalue>4, @1);
 };
+
+visibleInitializableDeclaration :
+  TOKEN_VISIBLE TOKEN_GLOBAL addressableVariablePrefix identifier arrayDimensionSet
+{
+  state.visibleInitializableDeclaration($<svalue>4,@1);
+}
 
 
 %%

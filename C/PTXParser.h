@@ -20,6 +20,7 @@ namespace parser
   /*! \brief An implementation of the Parser interface for PTX */
   class PTXParser 
   {
+    private:
     typedef int token_t;
     std::ostream &out;
     std::string _identifier;
@@ -28,6 +29,7 @@ namespace parser
     bool isArgumentList, isReturnArgumentList;
     typedef std::pair<token_t, std::string> argument_t;
     std::vector<argument_t> argumentList, returnArgumentList;
+    std::vector<int> arrayDimensionsList;
 
     public:
     PTXParser(std::ostream &_out) : out(_out)
@@ -72,6 +74,11 @@ namespace parser
         returnArgumentList.push_back(std::make_pair(_dataTypeId, _identifier));
       else
         assert(0);
+    }
+
+    void arrayDimensions(const int value)
+    {
+      arrayDimensionsList.push_back(value);
     }
 
     std::string printArgument(const argument_t arg, const bool printDataType = true)
@@ -152,6 +159,16 @@ namespace parser
       argumentList.clear();
       returnArgumentList.clear();
 
+      std::cout << s.str();
+    }
+
+    void visibleInitializableDeclaration(const std::string &name, LOC)
+    {
+      assert(arrayDimensionsList.size() == 1);
+      std::stringstream s;
+      s << "extern \"C\" __device__ ";
+      s << tokenToDataType(_dataTypeId);
+      s << name << "[" << arrayDimensionsList[0] << "] = {0};\n";
       std::cout << s.str();
     }
 

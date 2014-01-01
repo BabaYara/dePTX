@@ -27,6 +27,7 @@ TAB [\t]*
 ".entry"        { return TOKEN_ENTRY; }
 ".align"        { return TOKEN_ALIGN; }
 ".visible"      { return TOKEN_VISIBLE; }
+".global"       { return TOKEN_GLOBAL; }
 ".param"        { return TOKEN_PARAM; }
 ".b8"           { LLSETTOKEN( TOKEN_B8);}
 ".b16"          { LLSETTOKEN( TOKEN_B16);}
@@ -44,11 +45,8 @@ TAB [\t]*
 ".f64"          { LLSETTOKEN( TOKEN_F64);}
 "["             { return '[';}
 "]"             { return ']';}
-"{"             { return '{';}
-"}"             { return '}';}
 "("             { return '(';}
 ")"             { return ')';}
-";"             { return ';';}
 ","             { return ',';}
 [0-9]+\.[0-9]+ { yylval->fvalue = atof(yytext); return TOKEN_FLOAT; }
 [0-9]+   { yylval->ivalue = atoi(yytext); return TOKEN_INT; }
