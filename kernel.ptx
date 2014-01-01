@@ -8,9 +8,9 @@
 .target sm_35
 .address_size 64
 
- .visible .global .align 8 .b8 test_array[96] = {0, 0, 0, 0, 0, 0, 240, 63, 0, 0, 0, 0, 0, 0, 0, 64, 0, 0, 0, 0, 0, 0, 8, 64, 0, 0, 0, 0, 0, 0, 16, 64, 0, 0, 0, 0, 0, 0, 20, 64, 0, 0, 0, 0, 0, 0, 24, 64, 0, 0, 0, 0, 0, 0, 28, 64, 0, 0, 0, 0, 0, 0, 32, 64, 0, 0, 0, 0, 0, 0, 34, 64, 0, 0, 0, 0, 0, 0, 36, 64, 0, 0, 0, 0, 0, 0, 38, 64, 0, 0, 0, 0, 0, 0, 40, 64};
+.visible .global .align 128 .b8 XXstatic_210_plane[256] = {0, 0, 0, 0, 0, 0, 0, 191, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 63, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-.entry .func  (.param .b32 func_retval0) cudaLaunchDevice
+.extern .func  (.param .b32 func_retval0) cudaLaunchDevice
 (
   .param .b64 cudaLaunchDevice_param_0,
   .param .b64 cudaLaunchDevice_param_1,
@@ -37,7 +37,7 @@
 .global .align 1 .b8 constDeltaForeach[32] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3};
 .global .align 1 .b8 constDeltaForeach3[32] = {0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7};
 
-.visible .func (.param .b32 func_retval0)ray_sphere_intersect___REFs_5B_vyIsect_5D_REFs_5B_vyRay_5D_REFs_5B_unSphere_5D_(
+.visible .func ray_sphere_intersect___REFs_5B_vyIsect_5D_REFs_5B_vyRay_5D_REFs_5B_unSphere_5D_(
 	.param .b64 ray_sphere_intersect___REFs_5B_vyIsect_5D_REFs_5B_vyRay_5D_REFs_5B_unSphere_5D__param_0,
 	.param .b64 ray_sphere_intersect___REFs_5B_vyIsect_5D_REFs_5B_vyRay_5D_REFs_5B_unSphere_5D__param_1,
 	.param .b64 ray_sphere_intersect___REFs_5B_vyIsect_5D_REFs_5B_vyRay_5D_REFs_5B_unSphere_5D__param_2,
