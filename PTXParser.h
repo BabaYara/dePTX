@@ -25,6 +25,7 @@ namespace parser
     std::ostream &out;
     std::string _identifier;
     token_t _dataTypeId;
+    int _alignment;
 
     bool isArgumentList, isReturnArgumentList;
     typedef std::pair<token_t, std::string> argument_t;
@@ -40,16 +41,16 @@ namespace parser
     void printHeader()
     {
       std::stringstream s;
-      s << "typedef unsigned char       b8_t; \n";
-      s << "typedef unsigned short     b16_t; \n";
+      s << "typedef struct { unsigned char _v[1]; }      b8_t; \n";
+      s << "typedef struct { unsigned short _v[1]; }    b16_t; \n";
+      s << "typedef struct { unsigned char _v[1]; }      u8_t; \n";
+      s << "typedef struct { unsigned short _v[1]; }    u16_t; \n";
+      s << "typedef struct {          char _v[1]; }      s8_t; \n";
+      s << "typedef struct {          short _v[1]; }    s16_t; \n";
       s << "typedef unsigned int       b32_t; \n";
       s << "typedef unsigned long long b64_t; \n";
-      s << "typedef unsigned char       u8_t; \n";
-      s << "typedef unsigned short     u16_t; \n";
       s << "typedef unsigned int       u32_t; \n";
       s << "typedef unsigned long long u64_t; \n";
-      s << "typedef char                s8_t; \n";
-      s << "typedef short              s16_t; \n";
       s << "typedef int                s32_t; \n";
       s << "typedef long long          s64_t; \n";
       s << "typedef float              f32_t; \n";
@@ -68,6 +69,7 @@ namespace parser
     void returnArgumentListEnd  (LOC) { isReturnArgumentList = false; }
     void argumentDeclaration(LOC) 
     {
+      assert(_alignment == 0 || _alignment == 1);
       if (isArgumentList)
         argumentList.push_back(std::make_pair(_dataTypeId, _identifier));
       else if (isReturnArgumentList)
@@ -75,6 +77,7 @@ namespace parser
       else
         assert(0);
     }
+    void alignment(const int value) { _alignment = value; }
 
     void arrayDimensions(const int value)
     {
@@ -167,6 +170,8 @@ namespace parser
       assert(arrayDimensionsList.size() == 1);
       std::stringstream s;
       s << "extern \"C\" __device__ ";
+      if (_alignment > 0)
+        s << "__attribute__((aligned(" << _alignment << "))) ";
       s << tokenToDataType(_dataTypeId);
       s << name << "[" << arrayDimensionsList[0] << "] = {0};\n\n";
       std::cout << s.str();

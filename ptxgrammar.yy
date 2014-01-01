@@ -96,7 +96,7 @@ dataType: dataTypeId { state.dataTypeId($<ivalue>1); }
 anytoken: 
   TOKEN_ALIGN 
 | TOKEN_PARAM 
-| dataType
+| dataTypeId
 | TOKEN_STRING | TOKEN_FLOAT | TOKEN_INT
 | TOKEN_FUNC | TOKEN_ENTRY
 | TOKEN_GLOBAL
@@ -123,8 +123,8 @@ arrayDimensions : arrayDimensionSet;
 identifier: TOKEN_STRING { strcpy($$, $1); state.identifier($1); }
 parameter : TOKEN_PARAM;
 
-alignment : TOKEN_ALIGN TOKEN_INT {$$ = $2;}
-addressableVariablePrefix : dataType;
+alignment : TOKEN_ALIGN TOKEN_INT {$$ = $2; state.alignment($<ivalue>2);}
+addressableVariablePrefix : dataType { state.alignment(0); }
 addressableVariablePrefix : alignment dataType;
 
 argumentDeclaration : parameter addressableVariablePrefix identifier arrayDimensions
