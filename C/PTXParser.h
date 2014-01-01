@@ -168,7 +168,7 @@ namespace parser
       std::stringstream s;
       s << "extern \"C\" __device__ ";
       s << tokenToDataType(_dataTypeId);
-      s << name << "[" << arrayDimensionsList[0] << "] = {0};\n";
+      s << name << "[" << arrayDimensionsList[0] << "] = {0};\n\n";
       std::cout << s.str();
     }
 
