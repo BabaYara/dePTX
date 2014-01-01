@@ -1,7 +1,12 @@
-#pragma once
+/*!
+	\file PTXLexer.h
+	\date Monday January 19, 2009
+	\author Gregory Diamos <gregory.diamos@gatech.edu>
+	\brief The header file for the PTXLexer class.
+*/
 
-#include <cstring>
-#include <cassert>
+#ifndef PTX_LEXER_H_INCLUDED
+#define PTX_LEXER_H_INCLUDED
 
 namespace parser
 {
@@ -22,19 +27,19 @@ namespace parser
 			int          nextColumn;
 
 		public:
-			PTXLexer( std::istream* arg_yyin, 
-				std::ostream* arg_yyout ) :
-        yyFlexLexer( arg_yyin, arg_yyout ), yylval( 0 ), column( 0 ), 
-        nextColumn( 0 ) { }
+			PTXLexer( std::istream* arg_yyin = 0, 
+				std::ostream* arg_yyout = 0 );
 	
 			int yylex();
-      int yylexPosition()
-      {
-        int token = yylex();
-        column = nextColumn;
-        nextColumn = column + strlen( YYText() );
-        return token;
-      }
+			int yylexPosition();
+			
+		public:
+			static std::string toString( int token );
+	
+	};
 
-  };
 }
+
+
+#endif
+

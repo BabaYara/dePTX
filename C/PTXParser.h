@@ -1,4 +1,14 @@
-#pragma once
+/*! \file PTXParser.h
+	\date Monday January 19, 2009
+	\author Gregory Diamos <gregory.diamos@gatech.edu>
+	\brief The header file for the PTXParser class.
+*/
+
+#ifndef PTX_PARSER_H_INCLUDED
+#define PTX_PARSER_H_INCLUDED
+
+#include <ostream>
+
 
 #undef yyFlexLexer
 #define yyFlexLexer ptxFlexLexer
@@ -8,8 +18,6 @@
 #include "PTXLexer.h"
 
 #include <vector>
-#include <sstream>
-#include <string>
 namespace ptx
 { 
 	extern int yyparse( parser::PTXLexer&, parser::PTXParser& );
@@ -20,184 +28,199 @@ namespace parser
   /*! \brief An implementation of the Parser interface for PTX */
   class PTXParser 
   {
-    private:
-    typedef int token_t;
     std::ostream &out;
-    std::string _identifier;
-    token_t _dataTypeId;
-
-    bool isArgumentList, isReturnArgumentList;
-    typedef std::pair<token_t, std::string> argument_t;
-    std::vector<argument_t> argumentList, returnArgumentList;
-    std::vector<int> arrayDimensionsList;
+    public:
+      unsigned int alignment;
+      PTXParser(std::ostream &_out); 
 
     public:
-    PTXParser(std::ostream &_out) : out(_out)
-    {
-      isArgumentList = isReturnArgumentList = false;
-    }
+      void addSpecialRegisters();
 
-    void printHeader()
-    {
-      std::stringstream s;
-      s << "typedef unsigned char       b8_t; \n";
-      s << "typedef unsigned short     b16_t; \n";
-      s << "typedef unsigned int       b32_t; \n";
-      s << "typedef unsigned long long b64_t; \n";
-      s << "typedef unsigned char       u8_t; \n";
-      s << "typedef unsigned short     u16_t; \n";
-      s << "typedef unsigned int       u32_t; \n";
-      s << "typedef unsigned long long u64_t; \n";
-      s << "typedef char                s8_t; \n";
-      s << "typedef short              s16_t; \n";
-      s << "typedef int                s32_t; \n";
-      s << "typedef long long          s64_t; \n";
-      s << "typedef float              f32_t; \n";
-      s << "typedef double             f64_t; \n";
-      s << " \n";
-      std::cout << s.str();
-    }
+      void maxnreg( unsigned int regs );
+      void maxntid( unsigned int tidx, unsigned int tidy = 1024, 
+          unsigned int tidz = 1024 );
+      void ctapersm( int target, unsigned int ctas );
+      void maxnctapersm( unsigned int ctas );
+      void maxnctapersm();
+      void minnctapersm( unsigned int ctas );
+      void minnctapersm();
 
-#define LOC YYLTYPE& location
+    public:
+      void preprocessor( int token );
+      void addressSize( unsigned int size );
+      void identifierList( const std::string& identifier );
+      void identifierList2( const std::string& identifier );
+      void symbolListSingle( const std::string& identifier );
+      void symbolListSingle2( const std::string& identifier );
+      void floatList( double value );
+      void floatList1( double value );
+      void singleList( float value );
+      void singleList1( float value );
+      void targetElement( int token );
+      void target();
+      void noAddressSpace();
+      void statementVectorType( int token );
+      void instructionVectorType( int token );
+      void attribute( bool visible, bool external, bool weak );
+      void shiftAmount( bool shift );
+      void vectorIndex( int token );
 
-    void identifier(const std::string &s) { _identifier = s;     }
-    void dataTypeId(const token_t token)  { _dataTypeId = token; }
-    void argumentListBegin(LOC) { isArgumentList = true;  }
-    void argumentListEnd  (LOC) { isArgumentList = false; }
-    void returnArgumentListBegin(LOC) { isReturnArgumentList = true;  }
-    void returnArgumentListEnd  (LOC) { isReturnArgumentList = false; }
-    void argumentDeclaration(LOC) 
-    {
-      if (isArgumentList)
-        argumentList.push_back(std::make_pair(_dataTypeId, _identifier));
-      else if (isReturnArgumentList)
-        returnArgumentList.push_back(std::make_pair(_dataTypeId, _identifier));
-      else
-        assert(0);
-    }
+      void registerDeclaration( const std::string& name, 
+          YYLTYPE& location, unsigned int regs = 0 );
+      void registerSeperator( YYLTYPE& location );
+      void fileDeclaration( unsigned int id, 
+          const std::string& name );
+      void textureDeclaration( int token,const std::string& name, 
+          YYLTYPE& location );
+      void surfaceDeclaration( int token, 
+          const std::string &name, YYLTYPE &location);
+      void samplerDeclaration( int token, 
+          const std::string &name, YYLTYPE &location);
+      void paramArgumentDeclaration(int token);
 
-    void arrayDimensions(const int value)
-    {
-      arrayDimensionsList.push_back(value);
-    }
 
-    std::string printArgument(const argument_t arg, const bool printDataType = true)
-    {
-      std::stringstream s;
-      if (printDataType) 
-        s << tokenToDataType(arg.first) << " ";
-      s << arg.second << " ";
-      return s.str();
-    }
 
-    std::string printArgumentList(const bool printDataType = true)
-    {
-      std::stringstream s;
-      if (argumentList.empty()) return s.str();
-      const int n = argumentList.size();
-      s << " " << printArgument(argumentList[0], printDataType);
-      for (int i = 1; i < n; i++)
-        s << ",\n " <<  printArgument(argumentList[i], printDataType);
-      return s.str();
-    }
+      void location( long long int one, long long int two, 
+          long long int three );
+      void label( const std::string& string );
+      void pragma( const std::string& string );
+      void labelOperand( const std::string& string );
+      void nonLabelOperand( const std::string& string, 
+          YYLTYPE& location, bool invert );
+      void constantOperand( long long int value );
+      void constantOperand( unsigned long long int value );
+      void constantOperand( float value );
+      void constantOperand( double value );
+      void indexedOperand( const std::string& name, 
+          YYLTYPE& location, long long int value );
+      void addressableOperand( const std::string& name, 
+          long long int value, YYLTYPE& location, 
+          bool invert );
+      void arrayOperand( YYLTYPE& location );
+      void returnOperand();
+      void guard( const std::string& name, YYLTYPE& one, 
+          bool invert );
+      void guard();
+      void statementEnd( YYLTYPE& location );
 
-    void visibleEntryDeclaration(const std::string &calleeName, LOC) 
-    {
-      std::stringstream s;
-      assert(returnArgumentList.empty());
-      s << "extern \"C\" \n";
-      s << "__global__ void " << calleeName << " (\n";
-      s << printArgumentList();
-      s << "\n ) { asm(\" // entry \"); }\n";
+      void tail( bool condition );
+      void uni( bool condition );
+      void carry( bool condition );
+      void modifier( int token );
+      void atomic( int token );
+      void volatileFlag( bool condition );
+      void reduction( int token );
+      void comparison( int token );
+      void boolean( int token );
+      void geometry( int token );
+      void vote( int token );
+      void shuffle( int token );
+      void level( int token );
+      void permute( int token );
+      void floatingPointMode( int token );
+      void defaultPermute();
+      void full();
 
-     
-      /* check if this is an "export"  entry */
-      const int entryNameLength = calleeName.length();
-      const int hostNameLength = entryNameLength-9;
-      assert(hostNameLength > 0);
-      const std::string ___export(&calleeName.c_str()[hostNameLength]);
-      if (___export.compare("___export") == 0)
-      {
-        std::string hostCalleeName;
-        hostCalleeName.append(calleeName.c_str(), hostNameLength);
-        s << "/*** host interface ***/\n";
-        s << "extern \"C\" \n";
-        s << "__host__ void " << hostCalleeName << " (\n";
-        s << printArgumentList();
-        s << "\n )\n";
-        s << "{\n   ";
-        s << calleeName;
-        s << "<<<1,32>>>(\n";
-        s << printArgumentList(false);
-        s << ");\n";
-        s << "}\n";
-      }
-      s << "\n";
-      argumentList.clear();
+      void instruction();
+      void instruction( const std::string& opcode, int dataType );
+      void instruction( const std::string& opcode );
+      void tex( int dataType );
+      void tld4( int dataType );
+      void callPrototypeName( const std::string& identifier );
+      void call( const std::string& identifier,
+          YYLTYPE& location );
+      void carryIn();
+      void relaxedConvert( int token, YYLTYPE& location );
+      void cvtaTo();
+      void convert( int token, YYLTYPE& location );
+      void convertC( int token, YYLTYPE& location );
+      void convertD( int token, YYLTYPE& location )  { }
+      void operandCIsAPredicate();
+      void barrierOperation( int token, YYLTYPE & location);
+      void cacheOperation(int token );
+      void cacheLevel(int token );
+      void clampOperation(int token);
+      void formatMode(int token);
+      void surfaceQuery(int token);
+      void colorComponent(int token);
 
-      std::cout << s.str();
-    }
-    
-    void visibleFunctionDeclaration(const std::string &calleeName, LOC) 
-    {
-      std::stringstream s;
-      assert(returnArgumentList.size() < 2);
-      s << "extern \"C\" \n";
-      s << "__device__ ";
-      if (returnArgumentList.empty())
-        s << " void ";
-      else
-        s << " " <<  tokenToDataType(returnArgumentList[0].first);
-      s << calleeName << " (\n";
-      s << printArgumentList();
+      void returnType( int token );
+      void argumentType( int token );
+      void callPrototype( const std::string& name, 
+          const std::string& identifier, YYLTYPE& location );
+      void callTargets( const std::string& name, 
+          YYLTYPE& location );
 
-      if (returnArgumentList.empty())
-        s << "\n ) { asm(\" // function \"); }\n\n";
-      else
-        s << "\n ) { asm(\" // function \"); return 0;} /* return value to disable warnings */\n\n";
+      /*************/
+      private:
+        bool isArgumentList;
+        bool isReturnArgumentList;
+        bool isInitializableDeclaration;
+        bool isEntry;
+        bool isFunctionBody;
+        bool isHostCallable;
+        std::string entryHostCode;
+        YYLTYPE functionBodyLocation[2];
+        int nOpenBrace;
+        std::vector<double> doubleList;
+        std::vector<unsigned long long> decimalList;
+        unsigned long long nValuesInitializer;
+        typedef long long int token_t;
+        token_t tokenDataType;
 
-      argumentList.clear();
-      returnArgumentList.clear();
+        enum attribute_t { VISIBLE, EXTERN, WEAK, NONE};
+        enum locationAddress_t { PARAM, REG, LOCAL, SHARED, CONST, GLOBAL};
+        attribute_t stmt_attribute, functionAttribute;
+        locationAddress_t stmt_locationAddress;
+        std::string calleeName;
 
-      std::cout << s.str();
-    }
 
-    void visibleInitializableDeclaration(const std::string &name, LOC)
-    {
-      assert(arrayDimensionsList.size() == 1);
-      std::stringstream s;
-      s << "extern \"C\" __device__ ";
-      s << tokenToDataType(_dataTypeId);
-      s << name << "[" << arrayDimensionsList[0] << "] = {0};\n\n";
-      std::cout << s.str();
-    }
+        typedef std::pair<token_t, std::string> argument_t;
+        std::vector<argument_t> argumentList,returnArgumentList;
 
-#undef LOC
+      /*************/
+      public:
+        void version( double version, YYLTYPE& location );
+        void argumentDeclaration( const std::string& name, YYLTYPE& location );
+        void argumentListBegin( YYLTYPE& location );
+        void argumentListEnd( YYLTYPE& location );
 
-    std::string tokenToDataType( token_t token )
-    {
-      switch( token )
-      {
-        case TOKEN_U8:   return "u8_t "; break;
-        case TOKEN_U16:  return "u16_t "; break;
-        case TOKEN_U32:  return "u32_t "; break;
-        case TOKEN_U64:  return "u64_t "; break;
-        case TOKEN_S8:   return "s8_t "; break;
-        case TOKEN_S16:  return "s16_t "; break;
-        case TOKEN_S32:  return "s32_t "; break;
-        case TOKEN_S64:  return "s64_t "; break;
-        case TOKEN_B8:   return "b8_t "; break;
-        case TOKEN_B16:  return "b16_t "; break;
-        case TOKEN_B32:  return "b32_t "; break;
-        case TOKEN_B64:  return "b64_t "; break;
-        case TOKEN_F32:  return "f32_t "; break;
-        case TOKEN_F64:  return "f64_t "; break;
-        default: std::cerr << "token= " << token<< std::endl; assert(0);
-      }
+        void functionBegin( YYLTYPE& location );
+        void functionName( const std::string& name, YYLTYPE& location );
+        void functionDeclaration( YYLTYPE& location, bool body );
 
-      return "";
-    }
+        void entry( const std::string& name, YYLTYPE& location );
+        void entryDeclaration( YYLTYPE& location );
+        void entryPrototype( YYLTYPE& location );
+        void entryStatement( YYLTYPE& location );
+        void metadata( const std::string& comment );
+
+
+        void openBrace( YYLTYPE& location );
+        void closeBrace( YYLTYPE& location );
+        void returnArgumentListBegin( YYLTYPE& location );
+        void returnArgumentListEnd( YYLTYPE& location );
+
+        void dataType( int token );
+        void addressSpace( int token );
+        void locationAddress( int token );
+        void uninitializableDeclaration( const std::string& name );
+        void initializableDeclaration( const std::string& name,  YYLTYPE& one, YYLTYPE& two );
+
+        void arrayDimensionSet( long long int value, YYLTYPE& location, bool add );
+        void arrayDimensionSet();
+        void arrayDimensions();
+        void assignment();
+      
+        void decimalListSingle( long long int value );
+        void decimalListSingle2( long long int value );
+
+        std::string tokenToDataType( int token );
+        std::string attributeString(attribute_t attr);
+        std::string locationAddressString(locationAddress_t addr);
   };
+
 }
 
+#endif
 

@@ -4,7 +4,8 @@
 #include <cassert>
 #include "PTXParser.h"
 
-int main() {
+int main(int argc, char * argv[])
+{
 	// open a file handle to a particular file:
   std::istream & input = std::cin;
   std::ostream & error = std::cerr;

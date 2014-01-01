@@ -1,27 +1,26 @@
 all: dePTX
 
 ptxgrammar.cc : ptxgrammar.yy
-	bison -d  ptxgrammar.yy -o ptxgrammar.cc
+	bison -d -v -t  ptxgrammar.yy -o ptxgrammar.cc
 
 ptx.cc: ptx.ll ptxgrammar.cc
 	flex -t ptx.ll > ptx.cc
 
-%.o: %.cpp
-	g++ -c -O3 $< -o $@ -I/opt/local/include -Werror -Wall
-
 %.o: %.cc
-	g++ -c -O3 $< -o $@ -I/opt/local/include -Werror -Wall
+	g++ -O3 -c $< -o $@ -I/opt/local/include
 
-OBJ= PTXLexer.o \
-		 PTXParser.o \
-	   ptx.o \
-		 ptxgrammar.o \
-		 dePTX.o 
+%.o: %.cpp
+	g++ -O3 -c $< -o $@ -I/opt/local/include
+
+OBJ= dePTX.o \
+		 ptx.o \
+		 ptxgrammar.o
 
 dePTX: $(OBJ)
-	g++ $^ -lfl -o dePTX -L/opt/local/lib -I/opt/local/include 
+	g++ -lfl $^ -o $@ -L/opt/local/lib 
 
 clean: 
-	/bin/rm -f ptx.cc ptxgrammar.cc ptxgrammar.hh  dePTX $(OBJ)
+	/bin/rm -f dePTX $(OBJ) ptxgrammar.hh ptxgrammar.cc ptx.cc ptxgrammar.output
 
-$(OBJ): ptx.cc ptxgrammar.cc PTXLexer.h PTXParser.h
+$(OBJ):  ptxgrammar.cc ptx.cc PTXParser.h PTXLexer.h
+
