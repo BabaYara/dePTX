@@ -70,7 +70,12 @@ ptxsource:
   header ptxbody;
 
 header:
-  version target  address_size { std::cerr << "Done reading PTX " << std::endl; };
+  version target  address_size 
+{ 
+  std::cerr << "Done reading PTX \n" << std::endl; 
+   state.printHeader(); 
+};
+
 version:
   TOKEN_VERSION TOKEN_FLOAT  { std::cerr << "Reading PTX version " << $2  << std::endl; };
 target:
@@ -128,8 +133,8 @@ argumentDeclaration : parameter addressableVariablePrefix identifier arrayDimens
 }
 
 
-argumentListBegin : '(';
-argumentListEnd : ')';
+argumentListBegin : '(' { state.argumentListBegin(@1); };
+argumentListEnd : ')' {state.argumentListEnd(@1); };
 argumentListBody : argumentDeclaration;
 argumentListBody : /* empty string */;
 argumentListBody : argumentListBody ',' argumentDeclaration;
@@ -140,10 +145,14 @@ visibleEntryDeclaration: TOKEN_VISIBLE TOKEN_ENTRY identifier argumentList
    state.visibleEntryDeclaration($<svalue>3, @1);
 };
 
-visibleFunctionDeclaration: TOKEN_VISIBLE TOKEN_FUNC TOKEN_STRING '('
+returnArgumentListBegin : '(' { state.returnArgumentListBegin(@1); }
+returnArgumentListEnd : ')' {state.returnArgumentListEnd(@1); }
+returnArgumentList : returnArgumentListBegin argumentListBody returnArgumentListEnd;
+optionalReturnArgumentList : returnArgumentList | /* empty string */;
+visibleFunctionDeclaration: TOKEN_VISIBLE TOKEN_FUNC optionalReturnArgumentList identifier argumentList
 {
-   std::cerr << " __device__ " << $3 << std::endl;
-}
+   state.visibleFunctionDeclaration($<svalue>4, @1);
+};
 
 
 %%

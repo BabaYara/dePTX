@@ -25,21 +25,53 @@ namespace parser
     std::string _identifier;
     token_t _dataTypeId;
 
+    bool isArgumentList, isReturnArgumentList;
     typedef std::pair<token_t, std::string> argument_t;
     std::vector<argument_t> argumentList, returnArgumentList;
 
     public:
     PTXParser(std::ostream &_out) : out(_out)
     {
+      isArgumentList = isReturnArgumentList = false;
+    }
+
+    void printHeader()
+    {
+      std::stringstream s;
+      s << "typedef unsigned char       b8_t; \n";
+      s << "typedef unsigned short     b16_t; \n";
+      s << "typedef unsigned int       b32_t; \n";
+      s << "typedef unsigned long long b64_t; \n";
+      s << "typedef unsigned char       u8_t; \n";
+      s << "typedef unsigned short     u16_t; \n";
+      s << "typedef unsigned int       u32_t; \n";
+      s << "typedef unsigned long long u64_t; \n";
+      s << "typedef char                s8_t; \n";
+      s << "typedef short              s16_t; \n";
+      s << "typedef int                s32_t; \n";
+      s << "typedef long long          s64_t; \n";
+      s << "typedef float              f32_t; \n";
+      s << "typedef double             f64_t; \n";
+      s << " \n";
+      std::cout << s.str();
     }
 
 #define LOC YYLTYPE& location
 
     void identifier(const std::string &s) { _identifier = s;     }
     void dataTypeId(const token_t token)  { _dataTypeId = token; }
+    void argumentListBegin(LOC) { isArgumentList = true;  }
+    void argumentListEnd  (LOC) { isArgumentList = false; }
+    void returnArgumentListBegin(LOC) { isReturnArgumentList = true;  }
+    void returnArgumentListEnd  (LOC) { isReturnArgumentList = false; }
     void argumentDeclaration(LOC) 
     {
-      argumentList.push_back(std::make_pair(_dataTypeId, _identifier));
+      if (isArgumentList)
+        argumentList.push_back(std::make_pair(_dataTypeId, _identifier));
+      else if (isReturnArgumentList)
+        returnArgumentList.push_back(std::make_pair(_dataTypeId, _identifier));
+      else
+        assert(0);
     }
 
     std::string printArgument(const argument_t arg, const bool printDataType = true)
@@ -65,13 +97,62 @@ namespace parser
     void visibleEntryDeclaration(const std::string &calleeName, LOC) 
     {
       std::stringstream s;
-      s << "extern \"C\" __global__ void \n";
-      s << calleeName << " (\n";
+      assert(returnArgumentList.empty());
+      s << "extern \"C\" \n";
+      s << "__global__ void " << calleeName << " (\n";
       s << printArgumentList();
-      s << "\n ) { asm(\" // entry \"); }\n\n";
+      s << "\n ) { asm(\" // entry \"); }\n";
+
+     
+      /* check if this is an "export"  entry */
+      const int entryNameLength = calleeName.length();
+      const int hostNameLength = entryNameLength-9;
+      assert(hostNameLength > 0);
+      const std::string ___export(&calleeName.c_str()[hostNameLength]);
+      if (___export.compare("___export") == 0)
+      {
+        std::string hostCalleeName;
+        hostCalleeName.append(calleeName.c_str(), hostNameLength);
+        s << "/*** host interface ***/\n";
+        s << "extern \"C\" \n";
+        s << "__host__ void " << hostCalleeName << " (\n";
+        s << printArgumentList();
+        s << "\n )\n";
+        s << "{\n   ";
+        s << calleeName;
+        s << "<<<1,32>>>(\n";
+        s << printArgumentList(false);
+        s << ");\n";
+        s << "}\n";
+      }
+      s << "\n";
       argumentList.clear();
 
-      std::cerr << s.str();
+      std::cout << s.str();
+    }
+    
+    void visibleFunctionDeclaration(const std::string &calleeName, LOC) 
+    {
+      std::stringstream s;
+      assert(returnArgumentList.size() < 2);
+      s << "extern \"C\" \n";
+      s << "__device__ ";
+      if (returnArgumentList.empty())
+        s << " void ";
+      else
+        s << " " <<  tokenToDataType(returnArgumentList[0].first);
+      s << calleeName << " (\n";
+      s << printArgumentList();
+
+      if (returnArgumentList.empty())
+        s << "\n ) { asm(\" // function \"); }\n\n";
+      else
+        s << "\n ) { asm(\" // function \"); return 0;} /* return value to disable warnings */\n\n";
+
+      argumentList.clear();
+      returnArgumentList.clear();
+
+      std::cout << s.str();
     }
 
 #undef LOC
@@ -80,20 +161,20 @@ namespace parser
     {
       switch( token )
       {
-        case TOKEN_U8:   return "u8 "; break;
-        case TOKEN_U16:  return "u16 "; break;
-        case TOKEN_U32:  return "u32 "; break;
-        case TOKEN_U64:  return "u64 "; break;
-        case TOKEN_S8:   return "s8 "; break;
-        case TOKEN_S16:  return "s16 "; break;
-        case TOKEN_S32:  return "s32 "; break;
-        case TOKEN_S64:  return "s64 "; break;
-        case TOKEN_B8:   return "b8 "; break;
-        case TOKEN_B16:  return "b16 "; break;
-        case TOKEN_B32:  return "b32 "; break;
-        case TOKEN_B64:  return "b64 "; break;
-        case TOKEN_F32:  return "f32 "; break;
-        case TOKEN_F64:  return "f64 "; break;
+        case TOKEN_U8:   return "u8_t "; break;
+        case TOKEN_U16:  return "u16_t "; break;
+        case TOKEN_U32:  return "u32_t "; break;
+        case TOKEN_U64:  return "u64_t "; break;
+        case TOKEN_S8:   return "s8_t "; break;
+        case TOKEN_S16:  return "s16_t "; break;
+        case TOKEN_S32:  return "s32_t "; break;
+        case TOKEN_S64:  return "s64_t "; break;
+        case TOKEN_B8:   return "b8_t "; break;
+        case TOKEN_B16:  return "b16_t "; break;
+        case TOKEN_B32:  return "b32_t "; break;
+        case TOKEN_B64:  return "b64_t "; break;
+        case TOKEN_F32:  return "f32_t "; break;
+        case TOKEN_F64:  return "f64_t "; break;
         default: std::cerr << "token= " << token<< std::endl; assert(0);
       }
 
