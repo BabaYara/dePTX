@@ -116,8 +116,7 @@ namespace parser
      
       /* check if this is an "export"  entry */
       const int entryNameLength = calleeName.length();
-      const int hostNameLength = entryNameLength-9;
-      assert(hostNameLength > 0);
+      const int hostNameLength = std::max(entryNameLength-9,0);
       const std::string ___export(&calleeName.c_str()[hostNameLength]);
       if (___export.compare("___export") == 0)
       {
