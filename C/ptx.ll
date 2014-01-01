@@ -9,6 +9,10 @@
 #include <cassert>
 #include <sstream>
 #include <cstring>
+#ifdef LLSETTOKEN
+#error "TOKEN is defined"
+#endif
+#define LLSETTOKEN(tok) yylval->ivalue = tok; return tok;
 %}
 
 COMMENT ("//"[^\n]*)
@@ -24,20 +28,20 @@ TAB [\t]*
 ".align"        { return TOKEN_ALIGN; }
 ".visible"      { return TOKEN_VISIBLE; }
 ".param"        { return TOKEN_PARAM; }
-".b8"           { return TOKEN_B8;}
-".b16"          { return TOKEN_B16;}
-".b32"          { return TOKEN_B32;}
-".b64"          { return TOKEN_B64;}
-".u8"           { return TOKEN_U8;}
-".u16"          { return TOKEN_U16;}
-".u32"          { return TOKEN_U32;}
-".u64"          { return TOKEN_U64;}
-".s8"           { return TOKEN_S8;}
-".s16"          { return TOKEN_S16;}
-".s32"          { return TOKEN_S32;}
-".s64"          { return TOKEN_S64;}
-".f32"          { return TOKEN_F32;}
-".f64"          { return TOKEN_F64;}
+".b8"           { LLSETTOKEN( TOKEN_B8);}
+".b16"          { LLSETTOKEN( TOKEN_B16);}
+".b32"          { LLSETTOKEN( TOKEN_B32);}
+".b64"          { LLSETTOKEN( TOKEN_B64);}
+".u8"           { LLSETTOKEN( TOKEN_U8);}
+".u16"          { LLSETTOKEN( TOKEN_U16);}
+".u32"          { LLSETTOKEN( TOKEN_U32);}
+".u64"          { LLSETTOKEN( TOKEN_U64);}
+".s8"           { LLSETTOKEN( TOKEN_S8);}
+".s16"          { LLSETTOKEN( TOKEN_S16);}
+".s32"          { LLSETTOKEN( TOKEN_S32);}
+".s64"          { LLSETTOKEN( TOKEN_S64);}
+".f32"          { LLSETTOKEN( TOKEN_F32);}
+".f64"          { LLSETTOKEN( TOKEN_F64);}
 "["             { return '[';}
 "]"             { return ']';}
 "{"             { return '{';}

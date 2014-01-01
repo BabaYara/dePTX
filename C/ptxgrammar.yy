@@ -1,3 +1,5 @@
+%locations
+
 %{
 	#include <iostream>
 	#include "PTXParser.h"
@@ -28,10 +30,10 @@
 
 %union
 {
-	char svalue[1024];
-	long long int ivalue;
-	long long unsigned int uvalue;
-	double fvalue;
+	char         svalue[1024];
+	double       fvalue;
+	int          ivalue;
+	unsigned int uvalue;
 }
 
 %parse-param {parser::PTXLexer& lexer}
@@ -44,10 +46,10 @@
 %token TOKEN_VERSION TOKEN_TARGET TOKEN_ADDRESS_SIZE
 %token TOKEN_VISIBLE TOKEN_FUNC TOKEN_ENTRY
 %token TOKEN_PARAM TOKEN_ALIGN 
-%token TOKEN_B8 TOKEN_B16 TOKEN_B32 TOKEN_B64
-%token TOKEN_U8 TOKEN_U16 TOKEN_U32 TOKEN_U64
-%token TOKEN_S8 TOKEN_S16 TOKEN_S32 TOKEN_S64
-%token TOKEN_F32 TOKEN_F64
+%token<ivalue> TOKEN_B8 TOKEN_B16 TOKEN_B32 TOKEN_B64
+%token<ivalue> TOKEN_U8 TOKEN_U16 TOKEN_U32 TOKEN_U64
+%token<ivalue> TOKEN_S8 TOKEN_S16 TOKEN_S32 TOKEN_S64
+%token<ivalue> TOKEN_F32 TOKEN_F64
 
 // define the "terminal symbol" token types I'm going to use (in CAPS
 // by convention), and associate each with a field of the union:
@@ -59,6 +61,8 @@
 %type<ivalue> arrayDimensionSet
 %type<ivalue> alignment
 
+%start ptxsource
+
 %%
 // the first rule defined is the highest-level rule, which in our
 // case is just the concept of a whole "snazzle file":
@@ -66,7 +70,7 @@ ptxsource:
   header ptxbody;
 
 header:
-  version target  address_size { std::cerr << "Done reading PTX " << std::endl; }
+  version target  address_size { std::cerr << "Done reading PTX " << std::endl; };
 version:
   TOKEN_VERSION TOKEN_FLOAT  { std::cerr << "Reading PTX version " << $2  << std::endl; };
 target:
@@ -74,16 +78,19 @@ target:
 address_size:
   TOKEN_ADDRESS_SIZE TOKEN_INT  { std::cerr << "Address_Size " << $2  << std::endl; };
 
- 
 
-dataTypeId : TOKEN_U8 | TOKEN_U16 | TOKEN_U32 | TOKEN_U64 | TOKEN_S8 
-	| TOKEN_S16 | TOKEN_S32 | TOKEN_S64 | TOKEN_B8 | TOKEN_B16 | TOKEN_B32 
-	| TOKEN_B64 | TOKEN_F32 | TOKEN_F64;
+dataTypeId : 
+    TOKEN_U8 | TOKEN_U16 | TOKEN_U32 | TOKEN_U64 
+  | TOKEN_S8 | TOKEN_S16 | TOKEN_S32 | TOKEN_S64 
+  | TOKEN_B8 | TOKEN_B16 | TOKEN_B32 | TOKEN_B64 
+  | TOKEN_F32 | TOKEN_F64;
+
+dataType: dataTypeId { state.dataTypeId($<ivalue>1); }
 
 anytoken: 
   TOKEN_ALIGN 
 | TOKEN_PARAM 
-| dataTypeId
+| dataType
 | TOKEN_STRING | TOKEN_FLOAT | TOKEN_INT
 | TOKEN_FUNC | TOKEN_ENTRY
 | '['
@@ -95,11 +102,12 @@ anytoken:
 | ';'
 | ',';
 
-
 ptxbody: 
     ptxbody visibleFunctionDeclaration | visibleFunctionDeclaration
   | ptxbody visibleEntryDeclaration| visibleEntryDeclaration
   | ptxbody anytoken | anytoken;
+
+
 
 arrayDimensionSet : '[' TOKEN_INT ']' { $$ = $2; }
 // arrayDimensionSet : arrayDimensionSet '[' TOKEN_INT ']' { $$ = $2; }
@@ -107,14 +115,17 @@ arrayDimensionSet : '[' TOKEN_INT ']' { $$ = $2; }
 arrayDimensions : /* empty string */;
 arrayDimensions : arrayDimensionSet;
 
-identifier: TOKEN_STRING { strcpy($$, $1); }
+identifier: TOKEN_STRING { strcpy($$, $1); state.identifier($1); }
 parameter : TOKEN_PARAM;
 
 alignment : TOKEN_ALIGN TOKEN_INT {$$ = $2;}
-addressableVariablePrefix : dataTypeId;
-addressableVariablePrefix : alignment dataTypeId;
+addressableVariablePrefix : dataType;
+addressableVariablePrefix : alignment dataType;
 
-argumentDeclaration : parameter addressableVariablePrefix identifier arrayDimensions;
+argumentDeclaration : parameter addressableVariablePrefix identifier arrayDimensions
+{
+  state.argumentDeclaration(@1);
+}
 
 
 argumentListBegin : '(';
@@ -126,8 +137,7 @@ argumentList: argumentListBegin argumentListBody argumentListEnd;
 
 visibleEntryDeclaration: TOKEN_VISIBLE TOKEN_ENTRY identifier argumentList
 {
-   state.visibleEntryDeclaration($3, @1);
-   std::cerr << " __global__ " << $3 << std::endl;
+   state.visibleEntryDeclaration($<svalue>3, @1);
 };
 
 visibleFunctionDeclaration: TOKEN_VISIBLE TOKEN_FUNC TOKEN_STRING '('

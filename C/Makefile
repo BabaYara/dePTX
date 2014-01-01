@@ -22,5 +22,5 @@ dePTX: $(OBJ)
 clean: 
 	/bin/rm -f dePTX $(OBJ) ptxgrammar.hh ptxgrammar.cc ptx.cc ptxgrammar.output
 
-$(OBJ):  ptxgrammar.cc ptx.cc
+$(OBJ):  ptxgrammar.cc ptx.cc PTXParser.h PTXLexer.h
 
