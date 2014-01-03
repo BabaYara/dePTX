@@ -17,7 +17,7 @@ OBJ= dePTX.o \
 		 ptxgrammar.o
 
 dePTX: $(OBJ)
-	g++ -lfl $^ -o $@ -L/opt/local/lib 
+	g++ $^ -o $@ -L/opt/local/lib 
 
 clean: 
 	/bin/rm -f dePTX $(OBJ) ptxgrammar.hh ptxgrammar.cc ptx.cc ptxgrammar.output

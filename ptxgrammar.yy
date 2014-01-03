@@ -7,6 +7,7 @@
 	#include <cassert>
 	#include <cstring>
   #include <sstream>
+  #include <cstdio>
 
 	#define YYERROR_VERBOSE 1
 
