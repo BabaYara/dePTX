@@ -28,7 +28,15 @@ namespace parser
     int _alignment;
 
     bool isArgumentList, isReturnArgumentList;
-    typedef std::pair<token_t, std::string> argument_t;
+    struct  argument_t
+    {
+      token_t type;
+      std::string name;
+      int dim;
+
+      argument_t(const token_t _type, const std::string &_name, const int _dim = 1) :
+        type(_type), name(_name), dim(_dim) {}
+    };
     std::vector<argument_t> argumentList, returnArgumentList;
     std::vector<int> arrayDimensionsList;
 
@@ -36,23 +44,25 @@ namespace parser
     PTXParser(std::ostream &_out) : out(_out)
     {
       isArgumentList = isReturnArgumentList = false;
+      _alignment = 1;
     }
 
     void printHeader()
     {
       std::stringstream s;
-      s << "typedef struct { unsigned char _v[1]; }      b8_t; \n";
-      s << "typedef struct { unsigned short _v[1]; }    b16_t; \n";
-      s << "typedef struct { unsigned char _v[1]; }      u8_t; \n";
-      s << "typedef struct { unsigned short _v[1]; }    u16_t; \n";
-      s << "typedef struct {          char _v[1]; }      s8_t; \n";
-      s << "typedef struct {          short _v[1]; }    s16_t; \n";
+      s << "template<int N> struct b8_t  { unsigned char  _v[N]; __device__ b8_t()  {}; __device__ b8_t (const int value) {}}; \n";
+      s << "template<int N> struct b16_t { unsigned short _v[N]; __device__ b16_t() {}; __device__ b16_t(const int value) {}}; \n";
+      s << "struct b8d_t  { unsigned char  _v[1]; }; \n";
+      s << "struct b16d_t { unsigned short _v[1]; }; \n";
+
       s << "typedef unsigned int       b32_t; \n";
-      s << "typedef unsigned long long b64_t; \n";
       s << "typedef unsigned int       u32_t; \n";
-      s << "typedef unsigned long long u64_t; \n";
       s << "typedef int                s32_t; \n";
+
+      s << "typedef unsigned long long b64_t; \n";
+      s << "typedef unsigned long long u64_t; \n";
       s << "typedef long long          s64_t; \n";
+
       s << "typedef float              f32_t; \n";
       s << "typedef double             f64_t; \n";
       s << " \n";
@@ -69,13 +79,16 @@ namespace parser
     void returnArgumentListEnd  (LOC) { isReturnArgumentList = false; }
     void argumentDeclaration(LOC) 
     {
-      assert(_alignment == 0 || _alignment == 1);
+      assert(arrayDimensionsList.size() <= 1);
+      const int dim = arrayDimensionsList.empty() ? 1 : arrayDimensionsList[0];
+      const argument_t arg(_dataTypeId, _identifier, dim);
       if (isArgumentList)
-        argumentList.push_back(std::make_pair(_dataTypeId, _identifier));
+        argumentList.push_back(arg);
       else if (isReturnArgumentList)
-        returnArgumentList.push_back(std::make_pair(_dataTypeId, _identifier));
+        returnArgumentList.push_back(arg);
       else
         assert(0);
+      arrayDimensionsList.clear();
     }
     void alignment(const int value) { _alignment = value; }
 
@@ -88,8 +101,8 @@ namespace parser
     {
       std::stringstream s;
       if (printDataType) 
-        s << tokenToDataType(arg.first) << " ";
-      s << arg.second << " ";
+        s << tokenToDataType(arg.type, arg.dim) << " ";
+      s << arg.name << " ";
       return s.str();
     }
 
@@ -132,6 +145,7 @@ namespace parser
         s << "<<<1,32>>>(\n";
         s << printArgumentList(false);
         s << ");\n";
+        s << " cudaDeviceSynchronize(); \n";
         s << "}\n";
       }
       s << "\n";
@@ -149,14 +163,17 @@ namespace parser
       if (returnArgumentList.empty())
         s << " void ";
       else
-        s << " " <<  tokenToDataType(returnArgumentList[0].first);
+        s << " " <<  tokenToDataType(returnArgumentList[0].type, returnArgumentList[0].dim);
       s << calleeName << " (\n";
       s << printArgumentList();
 
       if (returnArgumentList.empty())
         s << "\n ) { asm(\" // function \"); }\n\n";
       else
+      {
         s << "\n ) { asm(\" // function \"); return 0;} /* return value to disable warnings */\n\n";
+//        s << "\n ) { asm(\" // function \"); } /* this will generate warrning */\n\n";
+      }
 
       argumentList.clear();
       returnArgumentList.clear();
@@ -171,35 +188,47 @@ namespace parser
       s << "extern \"C\" __device__ ";
       if (_alignment > 0)
         s << "__attribute__((aligned(" << _alignment << "))) ";
-      s << tokenToDataType(_dataTypeId);
+      s << tokenToDataType(_dataTypeId, 0);
       s << name << "[" << arrayDimensionsList[0] << "] = {0};\n\n";
       std::cout << s.str();
+      arrayDimensionsList.clear();
     }
 
 #undef LOC
 
-    std::string tokenToDataType( token_t token )
+    std::string tokenToDataType( token_t token , int dim)
     {
+      std::stringstream s;
       switch( token )
       {
-        case TOKEN_U8:   return "u8_t "; break;
-        case TOKEN_U16:  return "u16_t "; break;
-        case TOKEN_U32:  return "u32_t "; break;
-        case TOKEN_U64:  return "u64_t "; break;
-        case TOKEN_S8:   return "s8_t "; break;
-        case TOKEN_S16:  return "s16_t "; break;
-        case TOKEN_S32:  return "s32_t "; break;
-        case TOKEN_S64:  return "s64_t "; break;
-        case TOKEN_B8:   return "b8_t "; break;
-        case TOKEN_B16:  return "b16_t "; break;
-        case TOKEN_B32:  return "b32_t "; break;
-        case TOKEN_B64:  return "b64_t "; break;
-        case TOKEN_F32:  return "f32_t "; break;
-        case TOKEN_F64:  return "f64_t "; break;
+        case TOKEN_B8:  
+          if (dim > 0)   s << "b8_t<"<<dim<<"> "; 
+          else           s << "b8d_t ";
+          break;
+        case TOKEN_U8:  assert(0); s << "u8_t "; break;
+        case TOKEN_S8:  assert(0); s << "s8_t "; break;
+                         
+        case TOKEN_B16: 
+          if (dim > 0)   s << "b16_t<"<<dim<<"> "; 
+          else           s << "b16d_t ";
+          break;
+        case TOKEN_U16: assert(0); s << "u16_t "; break;
+        case TOKEN_S16: assert(0); s << "s16_t "; break;
+
+        case TOKEN_B32:  assert(dim == 1); s << "b32_t "; break;
+        case TOKEN_U32:  assert(dim == 1); s << "u32_t "; break;
+        case TOKEN_S32:  assert(dim == 1); s << "s32_t "; break;
+
+        case TOKEN_B64:  assert(dim == 1); s << "b64_t "; break;
+        case TOKEN_U64:  assert(dim == 1); s << "u64_t "; break;
+        case TOKEN_S64:  assert(dim == 1); s << "s64_t "; break;
+
+        case TOKEN_F32:  assert(dim == 1); s << "f32_t "; break;
+        case TOKEN_F64:  assert(dim == 1); s << "f64_t "; break;
         default: std::cerr << "token= " << token<< std::endl; assert(0);
       }
 
-      return "";
+      return s.str();
     }
   };
 }
