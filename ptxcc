@@ -1,26 +1,18 @@
 #!/bin/sh
 
-PTXSRC=/tmp/___tmp_ptx.ptx
-PTXCU=/tmp/___tmp_ptx.cu
-PTXSH=/tmp/___tmp_ptx.sh
+PTXSRC=$1
+PTXCU=$1___tmp_ptx.cu
+PTXSH=$1___tmp_ptx.sh
 
 NVCCPARM=${@:2}
-BCSRC=$1
-
-PTXGEN=$HOME/ptxgen
-PTXGEN_FLAGS="-opt=3 -ftz=1 -prec-div=0 -prec-sqrt=0 -fma=1"
-
-LLVM32=$HOME/usr/local/llvm/bin-3.2
-LLVM32DIS=$LLVM32/bin/llvm-dis
-
 
 DEPTX=dePTX
 NVCC=nvcc
 
-$($LLVM32DIS $BCSRC -o $BCSRC-3_2.ll) && \
-$($PTXGEN $PTXGEN_FLAGS $BCSRC-3_2.ll > $PTXSRC) && \
 $DEPTX < $PTXSRC > $PTXCU &&
 $NVCC -arch=sm_35 -dc $NVCCPARM -dryrun $PTXCU 2>&1 | \
   sed 's/\#\$//g'| \
-  awk '{ if ($1 == "LIBRARIES=") print $1$2; else if ($1 == "cicc") print "cp /tmp/___tmp_ptx.ptx " $NF; else print $0 }' > $PTXSH &&
+  awk '{ if ($1 == "LIBRARIES=") print $1$2; else if ($1 == "cicc") print "cp '$PTXSRC'", $NF; else print $0 }' > $PTXSH &&
 sh $PTXSH
+
+# rm $PTXCU $PTXSH
